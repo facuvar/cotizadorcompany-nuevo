@@ -1,0 +1,196 @@
+# Archivos de configuración sensibles
+config.php
+config_local.php
+config_railway.php
+
+# Archivos de base de datos y backups SQL
+*.sql
+*.db
+*.sqlite
+company_presupuestos_*.sql
+cotizador_*.sql
+fix_categorias_*.sql
+
+# Logs y archivos de debug
+*.log
+logs/
+error.log
+access.log
+diagnostico_railway.txt
+*_debug.log
+presupuestos_debug.log
+adicionales_debug.log
+pdf_debug.log
+
+# Archivos temporales y de desarrollo
+*.tmp
+*.temp
+temp/
+tmp/
+debug_*.php
+diagnostico_*.php
+test_*.php
+verificar_*.php
+crear_*.php
+solucion_*.php
+comparar_*.php
+exportar_*.php
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos de backup
+*.bak
+*.backup
+backup/
+backups/
+
+# Archivos de caché
+cache/
+*.cache
+
+# Archivos de sesión PHP
+sessions/
+
+# Archivos de uploads
+uploads/
+files/
+
+# Node modules (si se usa)
+node_modules/
+package-lock.json
+
+# Composer (si se usa)
+vendor/
+composer.lock
+
+# Variables de entorno
+.env
+.env.local
+.env.production
+
+# Archivos de Excel temporales
+~$*.xlsx
+~$*.xls
+plantilla_importacion.xlsx
+formato_excel_ejemplo.html
+
+# Archivos PDF generados
+presupuestos/*.pdf
+
+# Archivos específicos de desarrollo y testing
+setup_results.html
+test_simple.html
+test_*.html
+*_test.php
+*_debug.php
+
+# Archivos de configuración de Railway (se incluyen)
+# railway.json
+# nixpacks.toml
+
+# Archivos de scripts de desarrollo
+actualizar_*.php
+importar_*.php
+sincronizar_*.php
+deploy_*.php
+setup_*.php
+upload_*.php
+limpiar_*.php
+normalizar_*.php
+inicializar_*.php
+switch_*.php
+sync_*.php
+
+# Configuración local
+config_local.php
+.env
+.env.local
+
+# Archivos de logs
+logs/*.log
+logs/*.txt
+logs/debug.log
+
+# Archivos temporales de Windows
+Thumbs.db
+Desktop.ini
+
+# Archivos temporales de macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Archivos de sistema de Linux
+*~
+.directory
+
+# Archivos de backup
+*.bak
+*.backup
+*.old
+*.tmp
+
+# Archivos de Excel temporal
+~$*.xlsx
+~$*.xls
+
+# Documentos temporales
+~$*.docx
+~$*.doc
+
+# Archivos de caché PHP
+*.cache
+
+# Vendor de Composer (si se usa)
+vendor/
+
+# Node modules (si se usa)
+node_modules/
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos de configuración específicos del servidor
+.htaccess.local
+config.local.php
+
+# Archivos de upload temporales
+uploads/temp/
+uploads/tmp/
+
+# Archivos de logs específicos
+error_log
+access_log
+
+# Archivos de base de datos locales
+*.sqlite
+*.db
+
+# Archivos de desarrollo
+test_*.php
+debug_*.php
+temp_*.php
+
+# Archivos SQL de backup
+*.sql.backup
+backup_*.sql
+
+# Carpetas de archivos no usados
+archivos_no_usados/
+
+# Archivos específicos no necesarios
+cotizador_simple_fixed.php
+limpieza_final.bat 
