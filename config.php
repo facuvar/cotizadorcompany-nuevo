@@ -4,6 +4,9 @@
  * Detecta automáticamente el entorno y usa las credenciales correctas
  */
 
+// Evitar salida antes de las sesiones
+ob_start();
+
 // Iniciar sesión al principio del archivo
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -21,12 +24,19 @@ if ($isRailway) {
     // ========================================
     // CONFIGURACIÓN RAILWAY (PRODUCCIÓN)
     // ========================================
-    // Usar las variables de entorno de Railway directamente
-    define('DB_HOST', getenv('MYSQLHOST') ?: 'mysql.railway.internal');
-    define('DB_USER', getenv('MYSQLUSER') ?: 'root');
-    define('DB_PASS', getenv('MYSQLPASSWORD') ?: 'CdEEWsKUcSueZldgmiaypVCCdnKMjgcD');
-    define('DB_NAME', getenv('MYSQLDATABASE') ?: 'railway');
-    define('DB_PORT', getenv('MYSQLPORT') ?: 3306);
+    // Valores por defecto para Railway
+    $defaultHost = 'containers-us-west-207.railway.app';
+    $defaultPort = 3306;
+    $defaultUser = 'root';
+    $defaultPass = 'CdEEWsKUcSueZldgmiaypVCCdnKMjgcD';
+    $defaultDB = 'railway';
+
+    // Usar las variables de entorno de Railway o los valores por defecto
+    define('DB_HOST', getenv('MYSQLHOST') ?: $defaultHost);
+    define('DB_USER', getenv('MYSQLUSER') ?: $defaultUser);
+    define('DB_PASS', getenv('MYSQLPASSWORD') ?: $defaultPass);
+    define('DB_NAME', getenv('MYSQLDATABASE') ?: $defaultDB);
+    define('DB_PORT', getenv('MYSQLPORT') ?: $defaultPort);
     
     // Configuración de entorno
     define('ENVIRONMENT', 'railway');
