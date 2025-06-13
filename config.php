@@ -1,6 +1,7 @@
 <?php
 /**
  * Configuración Universal - Railway y Local
+ * (Forzando deploy para actualizar variables)
  * 
  * Este archivo maneja la configuración de la base de datos y otras
  * variables de entorno, adaptándose automáticamente si se ejecuta
@@ -8,7 +9,20 @@
  */
 
 // --- 1. CONFIGURACIÓN DE LA BASE DE DATOS ---
-if (getenv('RAILWAY_ENVIRONMENT')) {
+
+// Detectar Railway de manera más robusta
+$isRailway = (getenv('RAILWAY_ENVIRONMENT') === 'production' || 
+             getenv('RAILWAY_ENVIRONMENT') === 'true' || 
+             isset($_ENV['RAILWAY_ENVIRONMENT']) ||
+             strpos($_SERVER['HTTP_HOST'] ?? '', 'railway.app') !== false);
+
+// Log detallado del entorno
+error_log("=== Diagnóstico de Entorno ===");
+error_log("RAILWAY_ENVIRONMENT: " . (getenv('RAILWAY_ENVIRONMENT') ?: 'No definido'));
+error_log("HTTP_HOST: " . ($_SERVER['HTTP_HOST'] ?? 'No definido'));
+error_log("Detección final - isRailway: " . ($isRailway ? 'true' : 'false'));
+
+if ($isRailway) {
     // Entorno de producción en Railway
     $db_host = getenv('MYSQLHOST');
     $db_user = getenv('MYSQLUSER');
@@ -74,13 +88,19 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Detectar si estamos en Railway
-$isRailway = true; // Forzar Railway para pruebas
+// Asegurar que las rutas base estén correctamente definidas
+if ($isRailway) {
+    // En Railway, usar rutas absolutas desde la raíz del proyecto
+    define('PROJECT_ROOT', __DIR__);
+} else {
+    // En local, mantener la configuración actual
+    define('PROJECT_ROOT', __DIR__);
+}
 
-// Log de detección
-error_log("Detección de Railway:");
-error_log("RAILWAY_ENVIRONMENT: " . ($_ENV['RAILWAY_ENVIRONMENT'] ?? 'No definido'));
-error_log("HTTP_HOST: " . ($_SERVER['HTTP_HOST'] ?? 'No definido'));
+// Log de rutas
+error_log("=== Rutas del Sistema ===");
+error_log("PROJECT_ROOT: " . PROJECT_ROOT);
+error_log("__DIR__: " . __DIR__);
 
 if ($isRailway) {
     // ========================================
@@ -267,9 +287,15 @@ define('APP_VERSION', '2.0.0');
 define('CURRENCY', 'ARS');
 
 // Rutas de archivos
-define('UPLOAD_DIR', __DIR__ . '/uploads/');
-define('PDF_DIR', __DIR__ . '/presupuestos/');
-define('LOG_DIR', __DIR__ . '/logs/');
+define('UPLOAD_DIR', PROJECT_ROOT . '/uploads/');
+define('PDF_DIR', PROJECT_ROOT . '/presupuestos/');
+define('LOG_DIR', PROJECT_ROOT . '/logs/');
+
+// Log de rutas completas
+error_log("=== Rutas de Directorios ===");
+error_log("UPLOAD_DIR: " . UPLOAD_DIR);
+error_log("PDF_DIR: " . PDF_DIR);
+error_log("LOG_DIR: " . LOG_DIR);
 
 // Crear directorios si no existen
 $dirs = [UPLOAD_DIR, PDF_DIR, LOG_DIR];
