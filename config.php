@@ -16,11 +16,12 @@ if ($isRailway) {
     // ========================================
     // CONFIGURACIÓN RAILWAY (PRODUCCIÓN)
     // ========================================
-    define('DB_HOST', $_ENV['MYSQLHOST'] ?? 'mysql.railway.internal');
-    define('DB_USER', $_ENV['MYSQLUSER'] ?? 'root');
-    define('DB_PASS', $_ENV['MYSQLPASSWORD'] ?? 'CdEEWsKUcSueZldgmiaypVCCdnKMjgcD');
-    define('DB_NAME', $_ENV['MYSQLDATABASE'] ?? 'railway');
-    define('DB_PORT', $_ENV['MYSQLPORT'] ?? 3306);
+    // Usar las variables de entorno de Railway directamente
+    define('DB_HOST', getenv('MYSQLHOST') ?: 'mysql.railway.internal');
+    define('DB_USER', getenv('MYSQLUSER') ?: 'root');
+    define('DB_PASS', getenv('MYSQLPASSWORD') ?: 'CdEEWsKUcSueZldgmiaypVCCdnKMjgcD');
+    define('DB_NAME', getenv('MYSQLDATABASE') ?: 'railway');
+    define('DB_PORT', getenv('MYSQLPORT') ?: 3306);
     
     // Configuración de entorno
     define('ENVIRONMENT', 'railway');
@@ -32,6 +33,7 @@ if ($isRailway) {
     error_log("DB_HOST: " . DB_HOST);
     error_log("DB_NAME: " . DB_NAME);
     error_log("DB_PORT: " . DB_PORT);
+    error_log("DB_USER: " . DB_USER);
     
 } else {
     // ========================================
