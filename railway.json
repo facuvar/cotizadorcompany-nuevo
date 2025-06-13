@@ -4,10 +4,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf",
-    "healthcheckPath": "/health.php",
-    "healthcheckTimeout": 100,
-    "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
+    "startCommand": "php -S 0.0.0.0:$PORT index.php"
   }
 } 
