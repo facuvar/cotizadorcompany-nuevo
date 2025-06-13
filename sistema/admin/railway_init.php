@@ -1,7 +1,11 @@
 <?php
-require_once '../config.php';
-require_once '../includes/db.php';
-require_once '../includes/functions.php';
+// Definir la ruta base del sistema
+define('BASE_PATH', dirname(dirname(__FILE__)));
+
+// Incluir archivos necesarios
+require_once BASE_PATH . '/config.php';
+require_once BASE_PATH . '/includes/db.php';
+require_once BASE_PATH . '/includes/functions.php';
 
 // Verificar si estamos en Railway
 if (!defined('IS_RAILWAY') || !IS_RAILWAY) {
