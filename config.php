@@ -25,7 +25,7 @@ if ($isRailway) {
     // CONFIGURACIÓN RAILWAY (PRODUCCIÓN)
     // ========================================
     // Valores por defecto para Railway
-    $defaultHost = 'containers-us-west-207.railway.app';
+    $defaultHost = 'mysql.railway.internal'; // Host interno de Railway
     $defaultPort = 3306;
     $defaultUser = 'root';
     $defaultPass = 'CdEEWsKUcSueZldgmiaypVCCdnKMjgcD';
