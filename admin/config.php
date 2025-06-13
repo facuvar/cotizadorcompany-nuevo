@@ -1,4 +1,7 @@
 <?php
+// Asegurarse de que no haya salida antes de los headers
+ob_start();
+
 // Configuración de sesión (debe ir antes de iniciar la sesión)
 ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);

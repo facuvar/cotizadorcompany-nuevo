@@ -1,4 +1,7 @@
 <?php
+// Incluir configuración antes de iniciar la sesión
+require_once __DIR__ . '/config.php';
+
 // Iniciar sesión
 if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
     session_start();
@@ -10,14 +13,6 @@ if (isset($_GET['logout'])) {
     header('Location: index.php');
     exit;
 }
-
-// Verificar configuración
-$configPath = __DIR__ . '/config.php';
-if (!file_exists($configPath)) {
-    die("Error: Archivo de configuración no encontrado");
-}
-
-require_once $configPath;
 
 // Cargar DB
 $dbPath = __DIR__ . '/../sistema/includes/db.php';
