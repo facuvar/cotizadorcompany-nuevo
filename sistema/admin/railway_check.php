@@ -1,6 +1,6 @@
 <?php
-// Definir la ruta base del sistema
-define('BASE_PATH', dirname(dirname(dirname(__FILE__))));
+// Definir la ruta base del proyecto
+define('BASE_PATH', '/app');
 
 // Incluir archivos necesarios
 require_once BASE_PATH . '/sistema/config.php';
@@ -13,69 +13,25 @@ if (!defined('IS_RAILWAY') || !IS_RAILWAY) {
 }
 
 try {
-    $db = Database::getInstance();
-    $conn = $db->getConnection();
+    $conn = getDBConnection();
+    echo "✅ Conexión a la base de datos establecida correctamente\n";
     
-    echo "<h2>Estado de la Base de Datos en Railway</h2>";
-    
-    // Verificar conexión
-    echo "<h3>1. Conexión a la Base de Datos</h3>";
-    if ($conn && !$conn->connect_error) {
-        echo "✅ Conexión exitosa<br>";
-        echo "Host: " . DB_HOST . "<br>";
-        echo "Base de datos: " . DB_NAME . "<br>";
-    } else {
-        echo "❌ Error de conexión: " . ($conn->connect_error ?? "Desconocido") . "<br>";
-    }
-    
-    // Verificar tabla plazos_entrega
-    echo "<h3>2. Tabla plazos_entrega</h3>";
-    $result = $conn->query("SHOW TABLES LIKE 'plazos_entrega'");
-    if ($result && $result->num_rows > 0) {
-        echo "✅ Tabla existe<br>";
-        
-        // Verificar estructura
-        $result = $conn->query("DESCRIBE plazos_entrega");
-        echo "<pre>Estructura actual:\n";
-        while ($row = $result->fetch_assoc()) {
-            echo $row['Field'] . " - " . $row['Type'] . "\n";
+    // Verificar la estructura de las tablas
+    $tables = ['plazos_entrega', 'configuracion'];
+    foreach ($tables as $table) {
+        $result = $conn->query("SHOW TABLES LIKE '$table'");
+        if ($result->num_rows > 0) {
+            echo "✅ Tabla '$table' existe\n";
+            
+            // Verificar la estructura de la tabla
+            $columns = $conn->query("SHOW COLUMNS FROM $table");
+            echo "Estructura de la tabla '$table':\n";
+            while ($column = $columns->fetch_assoc()) {
+                echo "  - {$column['Field']} ({$column['Type']})\n";
+            }
+        } else {
+            echo "❌ Tabla '$table' no existe\n";
         }
-        echo "</pre>";
-        
-        // Verificar datos
-        $result = $conn->query("SELECT * FROM plazos_entrega ORDER BY orden ASC");
-        echo "<pre>Datos actuales:\n";
-        while ($row = $result->fetch_assoc()) {
-            echo "ID: " . $row['id'] . " | Nombre: " . $row['nombre'] . " | Días: " . $row['dias'] . "\n";
-        }
-        echo "</pre>";
-    } else {
-        echo "❌ Tabla no existe<br>";
-    }
-    
-    // Verificar tabla configuracion
-    echo "<h3>3. Tabla configuracion</h3>";
-    $result = $conn->query("SHOW TABLES LIKE 'configuracion'");
-    if ($result && $result->num_rows > 0) {
-        echo "✅ Tabla existe<br>";
-        
-        // Verificar estructura
-        $result = $conn->query("DESCRIBE configuracion");
-        echo "<pre>Estructura actual:\n";
-        while ($row = $result->fetch_assoc()) {
-            echo $row['Field'] . " - " . $row['Type'] . "\n";
-        }
-        echo "</pre>";
-        
-        // Verificar datos
-        $result = $conn->query("SELECT * FROM configuracion ORDER BY id ASC");
-        echo "<pre>Datos actuales:\n";
-        while ($row = $result->fetch_assoc()) {
-            echo "ID: " . $row['id'] . " | Nombre: " . $row['nombre'] . " | Valor: " . $row['valor'] . "\n";
-        }
-        echo "</pre>";
-    } else {
-        echo "❌ Tabla no existe<br>";
     }
     
     // Enlaces de acción
@@ -83,9 +39,7 @@ try {
     echo "<a href='railway_init.php' style='background: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Inicializar Base de Datos</a>";
     
 } catch (Exception $e) {
-    echo "<div style='color: red; padding: 10px; border: 1px solid red;'>";
-    echo "❌ Error: " . $e->getMessage();
-    echo "</div>";
+    echo "❌ Error: " . $e->getMessage() . "\n";
     
     // Registrar error
     railway_log("Error verificando base de datos en Railway: " . $e->getMessage());

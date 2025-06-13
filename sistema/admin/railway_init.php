@@ -1,6 +1,6 @@
 <?php
-// Definir la ruta base del sistema
-define('BASE_PATH', dirname(dirname(dirname(__FILE__))));
+// Definir la ruta base del proyecto
+define('BASE_PATH', '/app');
 
 // Incluir archivos necesarios
 require_once BASE_PATH . '/sistema/config.php';
@@ -13,22 +13,39 @@ if (!defined('IS_RAILWAY') || !IS_RAILWAY) {
 }
 
 try {
-    $db = Database::getInstance();
-    $conn = $db->getConnection();
-    
-    // Iniciar transacción
-    $conn->begin_transaction();
+    $conn = getDBConnection();
+    echo "✅ Conexión a la base de datos establecida correctamente\n";
     
     // Crear tabla plazos_entrega si no existe
-    $conn->query("CREATE TABLE IF NOT EXISTS plazos_entrega (
+    $sql = "CREATE TABLE IF NOT EXISTS plazos_entrega (
         id INT AUTO_INCREMENT PRIMARY KEY,
         nombre VARCHAR(100) NOT NULL,
         dias INT NOT NULL,
-        orden INT DEFAULT 0,
-        activo TINYINT(1) DEFAULT 1,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-    )");
+        orden INT NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )";
+    
+    if ($conn->query($sql)) {
+        echo "✅ Tabla plazos_entrega creada o verificada correctamente\n";
+    } else {
+        echo "❌ Error al crear tabla plazos_entrega: " . $conn->error . "\n";
+    }
+    
+    // Crear tabla configuracion si no existe
+    $sql = "CREATE TABLE IF NOT EXISTS configuracion (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nombre VARCHAR(100) NOT NULL,
+        valor TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )";
+    
+    if ($conn->query($sql)) {
+        echo "✅ Tabla configuracion creada o verificada correctamente\n";
+    } else {
+        echo "❌ Error al crear tabla configuracion: " . $conn->error . "\n";
+    }
     
     // Verificar si hay datos en plazos_entrega
     $result = $conn->query("SELECT COUNT(*) as count FROM plazos_entrega");
@@ -49,17 +66,6 @@ try {
             $stmt->close();
         }
     }
-    
-    // Crear tabla configuracion si no existe
-    $conn->query("CREATE TABLE IF NOT EXISTS configuracion (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        nombre VARCHAR(100) NOT NULL UNIQUE,
-        valor TEXT,
-        descripcion TEXT,
-        tipo ENUM('text','number','boolean','json') DEFAULT 'text',
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-    )");
     
     // Verificar si hay datos en configuracion
     $result = $conn->query("SELECT COUNT(*) as count FROM configuracion");
