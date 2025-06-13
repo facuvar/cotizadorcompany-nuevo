@@ -192,7 +192,7 @@
         .category-title {
             font-size: var(--text-base);
             font-weight: 600;
-            color: #ff675b;
+            color: #c00818;
             margin-bottom: 2px;
         }
 
@@ -288,7 +288,7 @@
 
         .option-name {
             font-size: var(--text-sm);
-            color: #ff675b;
+            color: #c00818;
             font-weight: 500;
         }
 
