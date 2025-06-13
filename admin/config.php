@@ -8,7 +8,7 @@ if (!getenv('RAILWAY_ENVIRONMENT')) {
 define('BASE_PATH', '/app');
 
 // Incluir archivos necesarios
-require_once BASE_PATH . '/sistema/config.php';
+require_once BASE_PATH . '/config.php';  // El archivo config.php está en la raíz
 require_once BASE_PATH . '/sistema/includes/db.php';
 require_once BASE_PATH . '/sistema/includes/functions.php';
 
