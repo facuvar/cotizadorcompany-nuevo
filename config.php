@@ -28,17 +28,19 @@ error_log("RAILWAY_ENVIRONMENT: " . (getenv('RAILWAY_ENVIRONMENT') ?: 'No defini
 error_log("HTTP_HOST: " . ($_SERVER['HTTP_HOST'] ?? 'No definido'));
 error_log("Detección final - isRailway: " . ($isRailway ? 'true' : 'false'));
 
-// Definir rutas base
-if ($isRailway) {
-    // En Railway, usar la ruta absoluta del documento
-    define('PROJECT_ROOT', rtrim($_SERVER['DOCUMENT_ROOT'], '/'));
+// Definir constantes de entorno
+define('ENVIRONMENT', $isRailway ? 'railway' : 'local');
+error_log("Entorno definido como: " . ENVIRONMENT);
+
+// Definir rutas base (solo si no están definidas)
+if (!defined('PROJECT_ROOT')) {
+    define('PROJECT_ROOT', $isRailway ? rtrim($_SERVER['DOCUMENT_ROOT'], '/') : __DIR__);
+}
+if (!defined('BASE_PATH')) {
     define('BASE_PATH', PROJECT_ROOT);
-    define('SITE_URL', 'https://' . $_SERVER['HTTP_HOST']);
-} else {
-    // En local, usar rutas relativas
-    define('PROJECT_ROOT', __DIR__);
-    define('BASE_PATH', __DIR__);
-    define('SITE_URL', 'http://localhost');
+}
+if (!defined('SITE_URL')) {
+    define('SITE_URL', $isRailway ? 'https://' . $_SERVER['HTTP_HOST'] : 'http://localhost');
 }
 
 // Log de rutas
@@ -297,7 +299,10 @@ foreach ($directories as $name => $path) {
             error_log("Directorio creado: " . $path);
         }
     }
-    define(strtoupper($name) . '_DIR', $path);
+    $const_name = strtoupper($name) . '_DIR';
+    if (!defined($const_name)) {
+        define($const_name, $path);
+    }
 }
 
 // Verificar permisos de directorios críticos
