@@ -1,4 +1,9 @@
 <?php
+// Configuración de sesión (debe ir antes de iniciar la sesión)
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_secure', 1);
+
 // Verificar que estamos en el entorno de Railway
 if (!getenv('RAILWAY_ENVIRONMENT')) {
     die("Este script solo puede ejecutarse en el entorno de Railway");
@@ -15,11 +20,6 @@ require_once BASE_PATH . '/sistema/includes/functions.php';
 // Credenciales de administrador
 define('ADMIN_USER', 'admin');
 define('ADMIN_PASS', password_hash('admin123', PASSWORD_DEFAULT));
-
-// Configuración de sesión
-ini_set('session.cookie_httponly', 1);
-ini_set('session.use_only_cookies', 1);
-ini_set('session.cookie_secure', 1);
 
 // Configuración de zona horaria
 date_default_timezone_set('America/Argentina/Buenos_Aires');
