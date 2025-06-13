@@ -297,12 +297,13 @@
         .option-price {
             font-size: var(--text-xs);
             font-weight: 600;
-            color: var(--accent-success);
+            color: var(--color-white);
             font-family: var(--font-mono);
         }
 
         .price-unavailable {
-            color: var(--text-muted);
+            color: var(--color-white);
+            opacity: 0.7;
             font-style: italic;
         }
 
