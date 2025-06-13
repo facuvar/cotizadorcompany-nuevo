@@ -10,6 +10,12 @@
 
 // --- 1. CONFIGURACIÓN DE LA BASE DE DATOS ---
 
+// Logging inicial para diagnóstico
+error_log("=== INICIO DE CONFIGURACIÓN ===");
+error_log("REQUEST_URI: " . ($_SERVER['REQUEST_URI'] ?? 'No definido'));
+error_log("SCRIPT_FILENAME: " . ($_SERVER['SCRIPT_FILENAME'] ?? 'No definido'));
+error_log("DOCUMENT_ROOT: " . ($_SERVER['DOCUMENT_ROOT'] ?? 'No definido'));
+
 // Detectar Railway de manera más robusta
 $isRailway = (getenv('RAILWAY_ENVIRONMENT') === 'production' || 
              getenv('RAILWAY_ENVIRONMENT') === 'true' || 
@@ -17,7 +23,7 @@ $isRailway = (getenv('RAILWAY_ENVIRONMENT') === 'production' ||
              strpos($_SERVER['HTTP_HOST'] ?? '', 'railway.app') !== false);
 
 // Log detallado del entorno
-error_log("=== Diagnóstico de Entorno ===");
+error_log("=== VARIABLES DE ENTORNO ===");
 error_log("RAILWAY_ENVIRONMENT: " . (getenv('RAILWAY_ENVIRONMENT') ?: 'No definido'));
 error_log("HTTP_HOST: " . ($_SERVER['HTTP_HOST'] ?? 'No definido'));
 error_log("Detección final - isRailway: " . ($isRailway ? 'true' : 'false'));
@@ -40,6 +46,27 @@ if ($isRailway) {
     define('DB_PASS', $db_pass);
     define('DB_NAME', $db_name);
     define('DB_PORT', $db_port);
+
+    // Definir la ruta base del proyecto
+    define('PROJECT_ROOT', rtrim($_SERVER['DOCUMENT_ROOT'], '/'));
+    
+    // Verificar si los directorios críticos existen
+    $critical_dirs = ['uploads', 'presupuestos', 'logs'];
+    foreach ($critical_dirs as $dir) {
+        $full_path = PROJECT_ROOT . '/' . $dir;
+        if (!is_dir($full_path)) {
+            error_log("ADVERTENCIA: Directorio no encontrado: " . $full_path);
+            // Intentar crear el directorio
+            if (!mkdir($full_path, 0755, true)) {
+                error_log("ERROR: No se pudo crear el directorio: " . $full_path);
+            } else {
+                error_log("Directorio creado exitosamente: " . $full_path);
+            }
+        } else {
+            error_log("Directorio existente: " . $full_path);
+            error_log("Permisos del directorio: " . substr(sprintf('%o', fileperms($full_path)), -4));
+        }
+    }
 } else {
     // Entorno de desarrollo local (XAMPP, etc.)
     define('DB_HOST', 'localhost');
@@ -47,58 +74,13 @@ if ($isRailway) {
     define('DB_PASS', '');
     define('DB_NAME', 'company_presupuestos');
     define('DB_PORT', 3306);
-}
 
-// --- 2. CONFIGURACIÓN DE LA APLICACIÓN ---
-
-// URL base de la aplicación (útil para generar enlaces absolutos)
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-$host = $_SERVER['HTTP_HOST'];
-define('BASE_URL', $protocol . $host);
-
-// Ruta base en el sistema de archivos
-if (!defined('BASE_PATH')) {
-    define('BASE_PATH', dirname(__FILE__));
-}
-
-// --- 3. OTRAS CONFIGURACIONES ---
-
-// Habilitar o deshabilitar el modo de depuración
-define('DEBUG_MODE', !getenv('RAILWAY_ENVIRONMENT'));
-
-// Configuración de la zona horaria
-date_default_timezone_set('America/Argentina/Buenos_Aires');
-
-// Configuración de errores
-if (defined('DEBUG_MODE') && DEBUG_MODE) {
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-} else {
-    ini_set('display_errors', 0);
-    ini_set('display_startup_errors', 0);
-    error_reporting(0);
-}
-
-// Evitar salida antes de las sesiones
-ob_start();
-
-// Iniciar sesión al principio del archivo
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Asegurar que las rutas base estén correctamente definidas
-if ($isRailway) {
-    // En Railway, usar rutas absolutas desde la raíz del proyecto
-    define('PROJECT_ROOT', __DIR__);
-} else {
     // En local, mantener la configuración actual
     define('PROJECT_ROOT', __DIR__);
 }
 
 // Log de rutas
-error_log("=== Rutas del Sistema ===");
+error_log("=== RUTAS DEL SISTEMA ===");
 error_log("PROJECT_ROOT: " . PROJECT_ROOT);
 error_log("__DIR__: " . __DIR__);
 
@@ -303,6 +285,48 @@ foreach ($dirs as $dir) {
     if (!is_dir($dir)) {
         mkdir($dir, 0755, true);
     }
+}
+
+// --- 2. CONFIGURACIÓN DE LA APLICACIÓN ---
+
+// URL base de la aplicación (útil para generar enlaces absolutos)
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+$host = $_SERVER['HTTP_HOST'];
+define('BASE_URL', $protocol . $host);
+error_log("BASE_URL definida como: " . BASE_URL);
+
+// Ruta base en el sistema de archivos
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', dirname(__FILE__));
+}
+
+// --- 3. OTRAS CONFIGURACIONES ---
+
+// Habilitar o deshabilitar el modo de depuración
+define('DEBUG_MODE', !$isRailway); // Cambiado para usar $isRailway en lugar de getenv
+
+// Configuración de la zona horaria
+date_default_timezone_set('America/Argentina/Buenos_Aires');
+
+// Configuración de errores
+if (DEBUG_MODE) {
+    error_log("Modo DEBUG activado");
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+} else {
+    error_log("Modo DEBUG desactivado");
+    ini_set('display_errors', 0);
+    ini_set('display_startup_errors', 0);
+    error_reporting(0);
+}
+
+// Evitar salida antes de las sesiones
+ob_start();
+
+// Iniciar sesión al principio del archivo
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
 ?> 
