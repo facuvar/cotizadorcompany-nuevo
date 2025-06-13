@@ -5,7 +5,7 @@ php = "8.2"
 PORT = "8080"
 
 [phases.setup]
-nixPkgs = ["php82"]
+nixPkgs = ["php82", "nginx"]
 
 [phases.install]
 cmds = ["mkdir -p /var/log/nginx", "mkdir -p /var/cache/nginx"]
