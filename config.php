@@ -4,6 +4,11 @@
  * Detecta automáticamente el entorno y usa las credenciales correctas
  */
 
+// Iniciar sesión al principio del archivo
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Detectar si estamos en Railway
 $isRailway = true; // Forzar Railway para pruebas
 
@@ -71,6 +76,11 @@ date_default_timezone_set('America/Argentina/Buenos_Aires');
 
 // Configuración de charset
 ini_set('default_charset', 'UTF-8');
+
+// Definir constantes solo si no están definidas
+if (!defined('CURRENCY_SYMBOL')) {
+    define('CURRENCY_SYMBOL', 'AR$');
+}
 
 // ========================================
 // FUNCIÓN DE CONEXIÓN PDO
@@ -213,12 +223,6 @@ if (ENVIRONMENT === 'railway') {
 // INICIALIZACIÓN
 // ========================================
 
-// Configurar sesiones
-if (session_status() === PHP_SESSION_NONE) {
-    ini_set('session.gc_maxlifetime', SESSION_LIFETIME);
-    session_start();
-}
-
 // Log de inicialización (solo en debug)
 if (DEBUG_MODE) {
     error_log("Config cargada - Entorno: " . ENVIRONMENT . " - Host: " . DB_HOST);
@@ -231,7 +235,6 @@ if (DEBUG_MODE) {
 define('APP_NAME', 'Cotizador Company');
 define('APP_VERSION', '2.0.0');
 define('CURRENCY', 'ARS');
-define('CURRENCY_SYMBOL', 'AR$');
 
 // Rutas de archivos
 define('UPLOAD_DIR', __DIR__ . '/uploads/');
