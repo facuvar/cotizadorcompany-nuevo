@@ -24,8 +24,27 @@ php_value error_reporting E_ALL
     Header always set X-XSS-Protection "1; mode=block"
 </IfModule>
 
-# Prevenir acceso directo a archivos del sistema
-RewriteRule ^sistema/ - [F,L]
+# Permitir acceso a archivos necesarios
+<FilesMatch "^(config|db|functions)\.php$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Permitir acceso a assets
+<Directory "assets">
+    Order Allow,Deny
+    Allow from all
+</Directory>
+
+# Permitir acceso a archivos del sistema necesarios
+<LocationMatch "^/sistema/(includes|assets)/">
+    Order Allow,Deny
+    Allow from all
+</LocationMatch>
+
+# Prevenir acceso directo a archivos del sistema excepto los necesarios
+RewriteEngine On
+RewriteRule ^sistema/(?!(includes|assets)/) - [F,L]
 
 # Manejar errores
 ErrorDocument 404 /index.php

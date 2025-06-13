@@ -10,23 +10,58 @@ ob_start();
 // Configuración de sesión (debe ir antes de iniciar la sesión)
 ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
-ini_set('session.cookie_secure', 1);
+if (getenv('RAILWAY_ENVIRONMENT')) {
+    ini_set('session.cookie_secure', 1);
+}
 
 // Definir la ruta base del proyecto
 if (getenv('RAILWAY_ENVIRONMENT')) {
     define('ADMIN_BASE_PATH', '/app');
-    define('INCLUDES_PATH', '/app/includes');
+    define('INCLUDES_PATH', '/app/sistema/includes');
+    define('ASSETS_PATH', '/assets');
+    define('ADMIN_URL', '/admin');
+    define('SITE_ROOT', '/app');
 } else {
-    define('ADMIN_BASE_PATH', dirname(dirname(__FILE__)));
-    define('INCLUDES_PATH', dirname(dirname(__FILE__)) . '/includes');
+    $projectRoot = str_replace('\\', '/', dirname(dirname(__FILE__)));
+    define('ADMIN_BASE_PATH', $projectRoot);
+    define('INCLUDES_PATH', $projectRoot . '/sistema/includes');
+    define('ASSETS_PATH', '/assets');
+    define('ADMIN_URL', '/admin');
+    define('SITE_ROOT', $projectRoot);
 }
 
-// Incluir el archivo de configuración principal
-require_once dirname(dirname(__FILE__)) . '/config.php';
+// Log de diagnóstico inicial
+error_log("=== DIAGNÓSTICO DE RUTAS ADMIN (PRE-CONFIG) ===");
+error_log("ADMIN_BASE_PATH: " . ADMIN_BASE_PATH);
+error_log("INCLUDES_PATH: " . INCLUDES_PATH);
+error_log("ASSETS_PATH: " . ASSETS_PATH);
+error_log("ADMIN_URL: " . ADMIN_URL);
+error_log("SITE_ROOT: " . SITE_ROOT);
+error_log("__FILE__: " . __FILE__);
+error_log("__DIR__: " . __DIR__);
+error_log("REQUEST_URI: " . ($_SERVER['REQUEST_URI'] ?? 'No definido'));
 
-// Incluir archivos necesarios (usando rutas relativas al archivo actual)
-require_once INCLUDES_PATH . '/db.php';
-require_once INCLUDES_PATH . '/functions.php';
+// Incluir el archivo de configuración principal
+$configFile = dirname(dirname(__FILE__)) . '/config.php';
+if (!file_exists($configFile)) {
+    error_log("Error: No se encuentra el archivo de configuración principal en: " . $configFile);
+    die("Error: Archivo de configuración no encontrado");
+}
+require_once $configFile;
+
+// Verificar y cargar archivos necesarios
+$requiredFiles = [
+    'db' => INCLUDES_PATH . '/db.php',
+    'functions' => INCLUDES_PATH . '/functions.php'
+];
+
+foreach ($requiredFiles as $name => $path) {
+    if (!file_exists($path)) {
+        error_log("Error: No se encuentra el archivo {$name} en: {$path}");
+        die("Error: Archivo {$name} no encontrado");
+    }
+    require_once $path;
+}
 
 // Credenciales de administrador
 if (!defined('ADMIN_USER')) define('ADMIN_USER', 'admin');
@@ -45,11 +80,31 @@ ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', ADMIN_BASE_PATH . '/logs/error.log');
 
-// Log de diagnóstico
-error_log("=== DIAGNÓSTICO DE RUTAS ADMIN ===");
+// Asegurar que existe el directorio de logs
+$logDir = ADMIN_BASE_PATH . '/logs';
+if (!is_dir($logDir)) {
+    mkdir($logDir, 0755, true);
+}
+
+// Función para obtener la URL base del sitio
+function getBaseUrl() {
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+    $host = $_SERVER['HTTP_HOST'];
+    return $protocol . $host;
+}
+
+// Función para construir URLs de assets
+function asset($path) {
+    $baseUrl = getBaseUrl();
+    return $baseUrl . ASSETS_PATH . '/' . ltrim($path, '/');
+}
+
+// Log de diagnóstico final
+error_log("=== DIAGNÓSTICO DE RUTAS ADMIN (POST-CONFIG) ===");
 error_log("ADMIN_BASE_PATH: " . ADMIN_BASE_PATH);
 error_log("INCLUDES_PATH: " . INCLUDES_PATH);
-error_log("__FILE__: " . __FILE__);
-error_log("dirname(__FILE__): " . dirname(__FILE__));
+error_log("ASSETS_PATH: " . ASSETS_PATH);
+error_log("Base URL: " . getBaseUrl());
 error_log("REQUEST_URI: " . ($_SERVER['REQUEST_URI'] ?? 'No definido'));
+error_log("DOCUMENT_ROOT: " . ($_SERVER['DOCUMENT_ROOT'] ?? 'No definido'));
 ?> 
