@@ -156,10 +156,12 @@
             justify-content: space-between;
             cursor: pointer;
             transition: background-color 0.2s ease;
+            background: var(--color-dark-gray);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
         }
 
         .category-header:hover {
-            background: var(--bg-hover);
+            background: #3d363f;
         }
 
         .category-info {
