@@ -1,0 +1,36 @@
+<?php
+// Configuración de la base de datos
+define('DB_HOST', 'localhost');
+define('DB_USER', 'tu_usuario_mysql');
+define('DB_PASS', 'tu_contraseña_mysql');
+define('DB_NAME', 'presupuestos_ascensores');
+
+// Configuración general
+define('SITE_URL', 'http://localhost/cotizadorcompany/sistema');
+define('UPLOAD_DIR', __DIR__ . '/uploads');
+define('XLS_DIR', __DIR__ . '/uploads/xls');
+
+// Color principal de la empresa
+define('MAIN_COLOR', '#e50009');
+
+// Credenciales del administrador
+define('ADMIN_USER', 'admin');
+define('ADMIN_PASS', '$2y$10$szOr0zBbR/0iUpJbHGzVgOyMS3vr7/3DbqFnOJTJRKZOwjyWO/vjm'); // admin123
+
+// Configuración de email (opcional)
+define('SMTP_HOST', 'smtp.gmail.com');
+define('SMTP_PORT', 587);
+define('SMTP_USER', 'tu_email@gmail.com');
+define('SMTP_PASS', 'tu_contraseña_email');
+define('FROM_EMAIL', 'noreply@tuempresa.com');
+define('FROM_NAME', 'Sistema de Presupuestos');
+
+// Configuración de Google Sheets (opcional)
+define('GOOGLE_SHEETS_API_KEY', 'tu_api_key_de_google');
+define('GOOGLE_SHEETS_ID', 'id_de_tu_hoja_de_calculo');
+
+// Iniciar sesión
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+?> 

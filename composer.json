@@ -1,0 +1,17 @@
+{
+    "name": "facuvar/cotizador-company",
+    "description": "Sistema de Cotizaciones y Presupuestos Online",
+    "type": "project",
+    "require": {
+        "php": "^8.2"
+    },
+    "scripts": {
+        "start": "php start.php"
+    },
+    "extra": {
+        "railway": {
+            "build": "echo 'Building PHP application...'",
+            "start": "php start.php"
+        }
+    }
+} 

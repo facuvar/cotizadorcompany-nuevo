@@ -1,0 +1,27 @@
+# Configuración básica
+DirectoryIndex cotizador.php index.php
+Options -Indexes +FollowSymLinks
+
+# Activar el motor de reescritura
+RewriteEngine On
+
+# Forzar mostrar errores
+php_flag display_errors on
+php_value error_reporting E_ALL
+
+# Permitir acceso directo a archivos del admin
+# Solo redirigir si el archivo no existe
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} ^/admin/
+RewriteRule ^admin/(.*)$ admin/index.php [L]
+
+# Permitir acceso a archivos y directorios necesarios
+<FilesMatch "\.(php|js|css|png|jpg|gif|ico)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Manejar errores
+ErrorDocument 404 /index.php
+ErrorDocument 500 /index.php
