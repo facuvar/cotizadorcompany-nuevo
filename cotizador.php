@@ -9,7 +9,7 @@
         /* Nueva paleta de colores */
         :root {
             /* Colores de la nueva paleta */
-            --color-coral: #c00818;      /* Nuevo color principal */
+            --color-coral: #4f4f4f;      /* Nuevo color principal */
             --color-dark-gray: #2D262E;  /* 45, 38, 46 - Gris oscuro */
             --color-white: #FFFFFF;      /* 255, 255, 255 - Blanco */
             --color-brown-gray: #7B6A6B; /* 123, 106, 107 - Gris marrón */

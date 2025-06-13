@@ -105,7 +105,7 @@ try {
         }
         
                  .button {
-             background: #c00818;
+             background: #4f4f4f;
              color: white;
              border: none;
              padding: 12px 24px;
@@ -145,7 +145,7 @@ try {
         
                  .header {
              text-align: center;
-             border-bottom: 3px solid #c00818;
+             border-bottom: 3px solid #4f4f4f;
              padding-bottom: 20px;
              margin-bottom: 30px;
          }
@@ -153,7 +153,7 @@ try {
          .company-name {
              font-size: 28px;
              font-weight: bold;
-             color: #c00818;
+             color: #4f4f4f;
              margin-bottom: 10px;
          }
         
@@ -182,7 +182,7 @@ try {
                  .section-title {
              font-size: 16px;
              font-weight: bold;
-             color: #c00818;
+             color: #4f4f4f;
              border-bottom: 2px solid #e5e5e5;
              padding-bottom: 8px;
              margin-bottom: 15px;
@@ -208,7 +208,7 @@ try {
              background: #f8f9fa;
              padding: 20px;
              border-radius: 8px;
-             border-left: 4px solid #c00818;
+             border-left: 4px solid #4f4f4f;
              margin-top: 10px;
              white-space: pre-wrap;
              line-height: 1.6;
@@ -275,7 +275,7 @@ try {
                  .total-final {
              font-size: 18px;
              font-weight: bold;
-             background: #c00818 !important;
+             background: #4f4f4f !important;
              color: white !important;
          }
         
