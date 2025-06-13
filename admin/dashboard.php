@@ -1,28 +1,49 @@
 <?php
 session_start();
 
-// Cargar configuración con manejo de errores
-$configPath = __DIR__ . '/../sistema/config.php';
-if (!file_exists($configPath)) {
-    die("Error: Archivo de configuración no encontrado");
-}
+// Cargar configuración - buscar en múltiples ubicaciones
+$configPaths = [
+    __DIR__ . '/../config.php',           // Railway (raíz del proyecto)
+    __DIR__ . '/../sistema/config.php',   // Local (dentro de sistema)
+];
 
-try {
-    require_once $configPath;
-} catch (Exception $e) {
-    die("Error cargando configuración: " . $e->getMessage());
-}
-
-// Cargar db.php con manejo de errores para Railway
-$dbConnected = false;
-try {
-    require_once __DIR__ . '/../sistema/includes/db.php';
-    $dbConnected = true;
-} catch (Exception $e) {
-    if (defined('IS_RAILWAY') && IS_RAILWAY) {
-        railway_log("Error loading db.php in dashboard: " . $e->getMessage());
+$configLoaded = false;
+foreach ($configPaths as $configPath) {
+    if (file_exists($configPath)) {
+        try {
+            require_once $configPath;
+            $configLoaded = true;
+            break;
+        } catch (Exception $e) {
+            continue;
+        }
     }
-    $dbConnected = false;
+}
+
+if (!$configLoaded) {
+    die("Error: No se pudo encontrar el archivo de configuración en ninguna ubicación");
+}
+
+// Cargar DB - buscar en múltiples ubicaciones
+$dbPaths = [
+    __DIR__ . '/../sistema/includes/db.php',   // Local
+    __DIR__ . '/../includes/db.php',           // Railway alternativo
+];
+
+$dbConnected = false;
+foreach ($dbPaths as $dbPath) {
+    if (file_exists($dbPath)) {
+        try {
+            require_once $dbPath;
+            $dbConnected = true;
+            break;
+        } catch (Exception $e) {
+            if (defined('IS_RAILWAY') && IS_RAILWAY) {
+                railway_log("Error loading db.php in dashboard: " . $e->getMessage());
+            }
+            continue;
+        }
+    }
 }
 
 // Verificar si el usuario está logueado

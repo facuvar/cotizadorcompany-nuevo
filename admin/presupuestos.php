@@ -7,17 +7,36 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
-// Cargar configuración
-$configPath = __DIR__ . '/../sistema/config.php';
-if (!file_exists($configPath)) {
-    die("Error: Archivo de configuración no encontrado");
-}
-require_once $configPath;
+// Cargar configuración - buscar en múltiples ubicaciones
+$configPaths = [
+    __DIR__ . '/../config.php',           // Railway (raíz del proyecto)
+    __DIR__ . '/../sistema/config.php',   // Local (dentro de sistema)
+];
 
-// Cargar DB
-$dbPath = __DIR__ . '/../sistema/includes/db.php';
-if (file_exists($dbPath)) {
-    require_once $dbPath;
+$configLoaded = false;
+foreach ($configPaths as $configPath) {
+    if (file_exists($configPath)) {
+        require_once $configPath;
+        $configLoaded = true;
+        break;
+    }
+}
+
+if (!$configLoaded) {
+    die("Error: No se pudo encontrar el archivo de configuración en ninguna ubicación");
+}
+
+// Cargar DB - buscar en múltiples ubicaciones
+$dbPaths = [
+    __DIR__ . '/../sistema/includes/db.php',   // Local
+    __DIR__ . '/../includes/db.php',           // Railway alternativo
+];
+
+foreach ($dbPaths as $dbPath) {
+    if (file_exists($dbPath)) {
+        require_once $dbPath;
+        break;
+    }
 }
 
 // Obtener presupuestos
