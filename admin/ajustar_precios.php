@@ -4,21 +4,43 @@ if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
     session_start();
 }
 
-// Verificar configuración
-$configPath = __DIR__ . '/../sistema/config.php';
-if (!file_exists($configPath)) {
-    die("Error: Archivo de configuración no encontrado");
+// Cargar configuración - buscar en múltiples ubicaciones
+$configPaths = [
+    __DIR__ . '/../config.php',           // Railway (raíz del proyecto)
+    __DIR__ . '/../sistema/config.php',   // Local (dentro de sistema)
+];
+
+$configLoaded = false;
+foreach ($configPaths as $configPath) {
+    if (file_exists($configPath)) {
+        require_once $configPath;
+        $configLoaded = true;
+        break;
+    }
 }
 
-require_once $configPath;
-
-// Cargar DB
-$dbPath = __DIR__ . '/../sistema/includes/db.php';
-if (!file_exists($dbPath)) {
-    die("Error: Archivo de base de datos no encontrado");
+if (!$configLoaded) {
+    die("Error: No se pudo encontrar el archivo de configuración en ninguna ubicación");
 }
 
-require_once $dbPath;
+// Cargar DB - buscar en múltiples ubicaciones
+$dbPaths = [
+    __DIR__ . '/../sistema/includes/db.php',   // Local
+    __DIR__ . '/../includes/db.php',           // Railway alternativo
+];
+
+$dbLoaded = false;
+foreach ($dbPaths as $dbPath) {
+    if (file_exists($dbPath)) {
+        require_once $dbPath;
+        $dbLoaded = true;
+        break;
+    }
+}
+
+if (!$dbLoaded) {
+    die("Error: No se pudo encontrar el archivo de base de datos en ninguna ubicación");
+}
 
 // Verificar login
 $isLoggedIn = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;

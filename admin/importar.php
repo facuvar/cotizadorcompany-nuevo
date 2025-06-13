@@ -7,12 +7,24 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
-// Cargar configuración
-$configPath = __DIR__ . '/../sistema/config.php';
-if (!file_exists($configPath)) {
-    die("Error: Archivo de configuración no encontrado");
+// Cargar configuración - buscar en múltiples ubicaciones
+$configPaths = [
+    __DIR__ . '/../config.php',           // Railway (raíz del proyecto)
+    __DIR__ . '/../sistema/config.php',   // Local (dentro de sistema)
+];
+
+$configLoaded = false;
+foreach ($configPaths as $configPath) {
+    if (file_exists($configPath)) {
+        require_once $configPath;
+        $configLoaded = true;
+        break;
+    }
 }
-require_once $configPath;
+
+if (!$configLoaded) {
+    die("Error: No se pudo encontrar el archivo de configuración en ninguna ubicación");
+}
 
 // Procesar subida de archivo
 $mensaje = '';
