@@ -1,4 +1,9 @@
 <?php
+// Verificar que estamos en Railway
+if (!isset($_ENV['RAILWAY_ENVIRONMENT'])) {
+    die("Este script solo puede ejecutarse en el entorno de Railway");
+}
+
 // Definir la ruta base del proyecto
 define('BASE_PATH', '/app');
 
@@ -7,11 +12,7 @@ require_once BASE_PATH . '/config.php';
 require_once BASE_PATH . '/sistema/includes/db.php';
 require_once BASE_PATH . '/sistema/includes/functions.php';
 
-// Verificar si estamos en Railway
-if (!defined('IS_RAILWAY') || !IS_RAILWAY) {
-    die("Este script solo debe ejecutarse en Railway");
-}
-
+// Verificar la conexión a la base de datos
 try {
     $conn = getDBConnection();
     echo "✅ Conexión a la base de datos establecida correctamente\n";
