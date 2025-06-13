@@ -10,11 +10,22 @@
 // --- 1. CONFIGURACIÓN DE LA BASE DE DATOS ---
 if (getenv('RAILWAY_ENVIRONMENT')) {
     // Entorno de producción en Railway
-    define('DB_HOST', getenv('MYSQLHOST') ?: 'mysql.railway.internal');
-    define('DB_USER', getenv('MYSQLUSER') ?: 'root');
-    define('DB_PASS', getenv('MYSQLPASSWORD') ?: '');
-    define('DB_NAME', getenv('MYSQLDATABASE') ?: 'railway');
-    define('DB_PORT', getenv('MYSQLPORT') ?: 3306);
+    $db_host = getenv('MYSQLHOST');
+    $db_user = getenv('MYSQLUSER');
+    $db_pass = getenv('MYSQLPASSWORD');
+    $db_name = getenv('MYSQLDATABASE');
+    $db_port = getenv('MYSQLPORT');
+
+    // Validar que todas las variables de entorno de la base de datos existan en Railway
+    if (empty($db_host) || empty($db_user) || empty($db_pass) || empty($db_name) || empty($db_port)) {
+        die('Error Crítico de Configuración: Faltan una o más variables de entorno de la base de datos en Railway (MYSQLHOST, MYSQLUSER, MYSQLPASSWORD, MYSQLDATABASE, MYSQLPORT). Por favor, ve a tu dashboard de Railway, selecciona el servicio de tu aplicación, y en la sección "Variables", asegúrate de que el servicio de la base de datos MySQL esté correctamente vinculado.');
+    }
+
+    define('DB_HOST', $db_host);
+    define('DB_USER', $db_user);
+    define('DB_PASS', $db_pass);
+    define('DB_NAME', $db_name);
+    define('DB_PORT', $db_port);
 } else {
     // Entorno de desarrollo local (XAMPP, etc.)
     define('DB_HOST', 'localhost');
