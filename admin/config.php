@@ -5,7 +5,7 @@ if (!getenv('RAILWAY_ENVIRONMENT')) {
 }
 
 // Definir la ruta base del proyecto
-define('BASE_PATH', dirname(dirname(__FILE__)));
+define('BASE_PATH', '/app');
 
 // Incluir archivos necesarios
 require_once BASE_PATH . '/sistema/config.php';
