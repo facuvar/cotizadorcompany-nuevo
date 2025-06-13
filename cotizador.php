@@ -207,12 +207,25 @@
         .expand-icon {
             color: var(--color-white);
             opacity: 0.8;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            background: #4f4f4f;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .expand-icon:hover {
+            opacity: 1;
+            background: #5a5a5a;
+            transform: scale(1.05);
         }
 
         .expand-icon svg {
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
         }
 
         .category-card.active .expand-icon {
