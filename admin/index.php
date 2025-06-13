@@ -138,6 +138,51 @@ if ($isLoggedIn) {
             overflow: hidden;
         }
 
+        /* Barra lateral */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: var(--spacing-md);
+        }
+
+        .sidebar-header {
+            padding: var(--spacing-lg) var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.5em;
+            color: var(--text-primary);
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .sidebar-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--border-radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .sidebar-item:hover,
+        .sidebar-item.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+        
+        .sidebar-footer {
+            margin-top: auto;
+        }
+
         /* Contenido principal */
         .main-content {
             flex: 1;
@@ -157,6 +202,10 @@ if ($isLoggedIn) {
             display: flex;
             align-items: center;
             justify-content: space-between;
+        }
+        
+        .header-grid h1 {
+             color: var(--text-primary);
         }
 
         .user-info {
@@ -239,6 +288,8 @@ if ($isLoggedIn) {
             background: var(--bg-secondary);
             border-radius: var(--border-radius);
             padding: var(--spacing-lg);
+            position: relative;
+            height: 400px; /* Alto fijo para el contenedor del gráfico */
         }
 
         /* Tabla de últimos presupuestos */
@@ -291,15 +342,33 @@ if ($isLoggedIn) {
             .recent-presupuestos {
                 grid-column: span 12;
             }
+            .sidebar {
+                display: none; /* Ocultar en pantallas pequeñas */
+            }
         }
     </style>
 </head>
 <body>
     <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Panel</h1>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="index.php" class="sidebar-item active">Dashboard</a>
+                <a href="gestionar_datos.php" class="sidebar-item">Gestionar Datos</a>
+                <a href="presupuestos.php" class="sidebar-item">Presupuestos</a>
+                <a href="ajustar_precios.php" class="sidebar-item">Ajustar Precios</a>
+            </nav>
+            <div class="sidebar-footer">
+                 <a href="../cotizador.php" class="sidebar-item" target="_blank">Ir al Cotizador</a>
+            </div>
+        </aside>
+        
         <div class="main-content">
             <header class="dashboard-header">
                 <div class="header-grid">
-                    <h1>Panel de Administración</h1>
+                    <h1>Dashboard</h1>
                     <div class="user-info">
                         <div class="user-avatar">
                             <?php echo strtoupper(substr($_SESSION['admin_user'], 0, 1)); ?>
@@ -393,7 +462,7 @@ if ($isLoggedIn) {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: false, // Clave para que el gráfico se ajuste al contenedor
                 plugins: {
                     legend: {
                         display: false

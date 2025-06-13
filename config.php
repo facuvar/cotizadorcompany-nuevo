@@ -1,8 +1,59 @@
 <?php
 /**
  * Configuración Universal - Railway y Local
- * Detecta automáticamente el entorno y usa las credenciales correctas
+ * 
+ * Este archivo maneja la configuración de la base de datos y otras
+ * variables de entorno, adaptándose automáticamente si se ejecuta
+ * en Railway o en un entorno local.
  */
+
+// --- 1. CONFIGURACIÓN DE LA BASE DE DATOS ---
+if (getenv('RAILWAY_ENVIRONMENT')) {
+    // Entorno de producción en Railway
+    define('DB_HOST', getenv('MYSQLHOST') ?: 'mysql.railway.internal');
+    define('DB_USER', getenv('MYSQLUSER') ?: 'root');
+    define('DB_PASS', getenv('MYSQLPASSWORD') ?: '');
+    define('DB_NAME', getenv('MYSQLDATABASE') ?: 'railway');
+    define('DB_PORT', getenv('MYSQLPORT') ?: 3306);
+} else {
+    // Entorno de desarrollo local (XAMPP, etc.)
+    define('DB_HOST', 'localhost');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
+    define('DB_NAME', 'company_presupuestos');
+    define('DB_PORT', 3306);
+}
+
+// --- 2. CONFIGURACIÓN DE LA APLICACIÓN ---
+
+// URL base de la aplicación (útil para generar enlaces absolutos)
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+$host = $_SERVER['HTTP_HOST'];
+define('BASE_URL', $protocol . $host);
+
+// Ruta base en el sistema de archivos
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', dirname(__FILE__));
+}
+
+// --- 3. OTRAS CONFIGURACIONES ---
+
+// Habilitar o deshabilitar el modo de depuración
+define('DEBUG_MODE', !getenv('RAILWAY_ENVIRONMENT'));
+
+// Configuración de la zona horaria
+date_default_timezone_set('America/Argentina/Buenos_Aires');
+
+// Configuración de errores
+if (defined('DEBUG_MODE') && DEBUG_MODE) {
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', 0);
+    ini_set('display_startup_errors', 0);
+    error_reporting(0);
+}
 
 // Evitar salida antes de las sesiones
 ob_start();
@@ -24,24 +75,8 @@ if ($isRailway) {
     // ========================================
     // CONFIGURACIÓN RAILWAY (PRODUCCIÓN)
     // ========================================
-    // Valores por defecto para Railway
-    $defaultHost = 'mysql.railway.internal'; // Host interno de Railway
-    $defaultPort = 3306;
-    $defaultUser = 'root';
-    $defaultPass = 'CdEEWsKUcSueZldgmiaypVCCdnKMjgcD';
-    $defaultDB = 'railway';
-
-    // Usar las variables de entorno de Railway o los valores por defecto
-    define('DB_HOST', getenv('MYSQLHOST') ?: $defaultHost);
-    define('DB_USER', getenv('MYSQLUSER') ?: $defaultUser);
-    define('DB_PASS', getenv('MYSQLPASSWORD') ?: $defaultPass);
-    define('DB_NAME', getenv('MYSQLDATABASE') ?: $defaultDB);
-    define('DB_PORT', getenv('MYSQLPORT') ?: $defaultPort);
-    
     // Configuración de entorno
     define('ENVIRONMENT', 'railway');
-    define('DEBUG_MODE', true); // Forzar debug mode
-    define('BASE_URL', 'https://' . $_SERVER['HTTP_HOST']);
     
     // Log de configuración
     error_log("Configuración Railway:");
@@ -54,35 +89,18 @@ if ($isRailway) {
     // ========================================
     // CONFIGURACIÓN LOCAL (DESARROLLO)
     // ========================================
-    define('DB_HOST', 'localhost');
-    define('DB_USER', 'root');
-    define('DB_PASS', '');
-    define('DB_NAME', 'company_presupuestos');
-    define('DB_PORT', 3306);
-    
     // Configuración de entorno
     define('ENVIRONMENT', 'local');
-    define('DEBUG_MODE', true);
-    define('BASE_URL', 'http://localhost/company-presupuestos-online-2');
+    
+    // Log de inicialización (solo en debug)
+    if (DEBUG_MODE) {
+        error_log("Config cargada - Entorno: " . ENVIRONMENT . " - Host: " . DB_HOST);
+    }
 }
 
 // ========================================
 // CONFIGURACIÓN COMÚN
 // ========================================
-
-// Configuración de errores según entorno
-if (DEBUG_MODE) {
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-} else {
-    // Activar errores temporalmente en Railway para debugging
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-}
-
-// Configuración de zona horaria
-date_default_timezone_set('America/Argentina/Buenos_Aires');
 
 // Configuración de charset
 ini_set('default_charset', 'UTF-8');
@@ -227,15 +245,6 @@ if (ENVIRONMENT === 'railway') {
     // Configuración específica de Local
     define('UPLOAD_MAX_SIZE', '50M');
     define('SESSION_LIFETIME', 7200); // 2 horas
-}
-
-// ========================================
-// INICIALIZACIÓN
-// ========================================
-
-// Log de inicialización (solo en debug)
-if (DEBUG_MODE) {
-    error_log("Config cargada - Entorno: " . ENVIRONMENT . " - Host: " . DB_HOST);
 }
 
 // ========================================

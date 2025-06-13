@@ -1,4 +1,9 @@
 <?php
+// Permitir acceso tanto en Railway como en localhost
+if (!getenv('RAILWAY_ENVIRONMENT') && $_SERVER['SERVER_NAME'] !== 'localhost' && $_SERVER['SERVER_ADDR'] !== '127.0.0.1') {
+    die("Este script solo puede ejecutarse en el entorno de Railway o en localhost");
+}
+
 // Asegurarse de que no haya salida antes de los headers
 ob_start();
 
@@ -7,16 +12,17 @@ ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
 ini_set('session.cookie_secure', 1);
 
-// Verificar que estamos en el entorno de Railway
-if (!getenv('RAILWAY_ENVIRONMENT')) {
-    die("Este script solo puede ejecutarse en el entorno de Railway");
+// Definir la ruta base del proyecto solo si no está definida
+if (!defined('BASE_PATH')) {
+    if (getenv('RAILWAY_ENVIRONMENT')) {
+        define('BASE_PATH', '/app');
+    } else {
+        define('BASE_PATH', dirname(dirname(__FILE__)));
+    }
 }
 
-// Definir la ruta base del proyecto
-define('BASE_PATH', '/app');
-
 // Incluir archivos necesarios
-require_once BASE_PATH . '/config.php';  // El archivo config.php está en la raíz
+require_once BASE_PATH . '/config.php';
 require_once BASE_PATH . '/sistema/includes/db.php';
 require_once BASE_PATH . '/sistema/includes/functions.php';
 
