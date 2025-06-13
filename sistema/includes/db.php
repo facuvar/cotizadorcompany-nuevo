@@ -81,7 +81,7 @@ class Database {
  * Función helper para obtener conexión mysqli
  * @return mysqli
  */
-function getMysqliConnection() {
+function getMySQLiConnection() {
     try {
         $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
         
