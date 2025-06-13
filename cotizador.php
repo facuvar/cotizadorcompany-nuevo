@@ -9,7 +9,7 @@
         /* Nueva paleta de colores */
         :root {
             /* Colores de la nueva paleta */
-            --color-coral: #FF675B;      /* 255, 103, 91 - Rojo coral */
+            --color-coral: #c00818;      /* Nuevo color principal */
             --color-dark-gray: #2D262E;  /* 45, 38, 46 - Gris oscuro */
             --color-white: #FFFFFF;      /* 255, 255, 255 - Blanco */
             --color-brown-gray: #7B6A6B; /* 123, 106, 107 - Gris marrón */
@@ -192,17 +192,19 @@
         .category-title {
             font-size: var(--text-base);
             font-weight: 600;
-            color: #c00818;
+            color: var(--color-white);
             margin-bottom: 2px;
         }
 
         .category-count {
             font-size: var(--text-sm);
-            color: var(--text-secondary);
+            color: var(--color-white);
+            opacity: 0.8;
         }
 
         .expand-icon {
-            color: var(--text-secondary);
+            color: var(--color-white);
+            opacity: 0.8;
             transition: transform 0.3s ease;
         }
 
@@ -288,7 +290,7 @@
 
         .option-name {
             font-size: var(--text-sm);
-            color: #c00818;
+            color: var(--color-white);
             font-weight: 500;
         }
 
