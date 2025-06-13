@@ -3,7 +3,7 @@
     "description": "Sistema de Cotizaciones y Presupuestos Online",
     "type": "project",
     "require": {
-        "php": ">=8.0"
+        "php": "^8.2"
     },
     "scripts": {
         "start": "php start.php"
