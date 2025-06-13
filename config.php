@@ -28,6 +28,26 @@ error_log("RAILWAY_ENVIRONMENT: " . (getenv('RAILWAY_ENVIRONMENT') ?: 'No defini
 error_log("HTTP_HOST: " . ($_SERVER['HTTP_HOST'] ?? 'No definido'));
 error_log("Detección final - isRailway: " . ($isRailway ? 'true' : 'false'));
 
+// Definir rutas base
+if ($isRailway) {
+    // En Railway, usar la ruta absoluta del documento
+    define('PROJECT_ROOT', rtrim($_SERVER['DOCUMENT_ROOT'], '/'));
+    define('BASE_PATH', PROJECT_ROOT);
+    define('SITE_URL', 'https://' . $_SERVER['HTTP_HOST']);
+} else {
+    // En local, usar rutas relativas
+    define('PROJECT_ROOT', __DIR__);
+    define('BASE_PATH', __DIR__);
+    define('SITE_URL', 'http://localhost');
+}
+
+// Log de rutas
+error_log("=== RUTAS DEL SISTEMA ===");
+error_log("PROJECT_ROOT: " . PROJECT_ROOT);
+error_log("BASE_PATH: " . BASE_PATH);
+error_log("SITE_URL: " . SITE_URL);
+
+// Configuración de la base de datos según el entorno
 if ($isRailway) {
     // Entorno de producción en Railway
     $db_host = getenv('MYSQLHOST');
@@ -36,92 +56,26 @@ if ($isRailway) {
     $db_name = getenv('MYSQLDATABASE');
     $db_port = getenv('MYSQLPORT');
 
-    // Validar que todas las variables de entorno de la base de datos existan en Railway
+    // Validar variables de entorno
     if (empty($db_host) || empty($db_user) || empty($db_pass) || empty($db_name) || empty($db_port)) {
-        die('Error Crítico de Configuración: Faltan una o más variables de entorno de la base de datos en Railway (MYSQLHOST, MYSQLUSER, MYSQLPASSWORD, MYSQLDATABASE, MYSQLPORT). Por favor, ve a tu dashboard de Railway, selecciona el servicio de tu aplicación, y en la sección "Variables", asegúrate de que el servicio de la base de datos MySQL esté correctamente vinculado.');
-    }
-
-    define('DB_HOST', $db_host);
-    define('DB_USER', $db_user);
-    define('DB_PASS', $db_pass);
-    define('DB_NAME', $db_name);
-    define('DB_PORT', $db_port);
-
-    // Definir la ruta base del proyecto
-    define('PROJECT_ROOT', rtrim($_SERVER['DOCUMENT_ROOT'], '/'));
-    
-    // Verificar si los directorios críticos existen
-    $critical_dirs = ['uploads', 'presupuestos', 'logs'];
-    foreach ($critical_dirs as $dir) {
-        $full_path = PROJECT_ROOT . '/' . $dir;
-        if (!is_dir($full_path)) {
-            error_log("ADVERTENCIA: Directorio no encontrado: " . $full_path);
-            // Intentar crear el directorio
-            if (!mkdir($full_path, 0755, true)) {
-                error_log("ERROR: No se pudo crear el directorio: " . $full_path);
-            } else {
-                error_log("Directorio creado exitosamente: " . $full_path);
-            }
-        } else {
-            error_log("Directorio existente: " . $full_path);
-            error_log("Permisos del directorio: " . substr(sprintf('%o', fileperms($full_path)), -4));
-        }
+        error_log("ERROR: Faltan variables de entorno de la base de datos en Railway");
+        die('Error Crítico de Configuración: Faltan variables de entorno de la base de datos en Railway');
     }
 } else {
-    // Entorno de desarrollo local (XAMPP, etc.)
-    define('DB_HOST', 'localhost');
-    define('DB_USER', 'root');
-    define('DB_PASS', '');
-    define('DB_NAME', 'company_presupuestos');
-    define('DB_PORT', 3306);
-
-    // En local, mantener la configuración actual
-    define('PROJECT_ROOT', __DIR__);
+    // Entorno de desarrollo local
+    $db_host = 'localhost';
+    $db_user = 'root';
+    $db_pass = '';
+    $db_name = 'company_presupuestos';
+    $db_port = 3306;
 }
 
-// Log de rutas
-error_log("=== RUTAS DEL SISTEMA ===");
-error_log("PROJECT_ROOT: " . PROJECT_ROOT);
-error_log("__DIR__: " . __DIR__);
-
-if ($isRailway) {
-    // ========================================
-    // CONFIGURACIÓN RAILWAY (PRODUCCIÓN)
-    // ========================================
-    // Configuración de entorno
-    define('ENVIRONMENT', 'railway');
-    
-    // Log de configuración
-    error_log("Configuración Railway:");
-    error_log("DB_HOST: " . DB_HOST);
-    error_log("DB_NAME: " . DB_NAME);
-    error_log("DB_PORT: " . DB_PORT);
-    error_log("DB_USER: " . DB_USER);
-    
-} else {
-    // ========================================
-    // CONFIGURACIÓN LOCAL (DESARROLLO)
-    // ========================================
-    // Configuración de entorno
-    define('ENVIRONMENT', 'local');
-    
-    // Log de inicialización (solo en debug)
-    if (DEBUG_MODE) {
-        error_log("Config cargada - Entorno: " . ENVIRONMENT . " - Host: " . DB_HOST);
-    }
-}
-
-// ========================================
-// CONFIGURACIÓN COMÚN
-// ========================================
-
-// Configuración de charset
-ini_set('default_charset', 'UTF-8');
-
-// Definir constantes solo si no están definidas
-if (!defined('CURRENCY_SYMBOL')) {
-    define('CURRENCY_SYMBOL', 'AR$');
-}
+// Definir constantes de base de datos
+define('DB_HOST', $db_host);
+define('DB_USER', $db_user);
+define('DB_PASS', $db_pass);
+define('DB_NAME', $db_name);
+define('DB_PORT', $db_port);
 
 // ========================================
 // FUNCIÓN DE CONEXIÓN PDO
@@ -295,20 +249,8 @@ $host = $_SERVER['HTTP_HOST'];
 define('BASE_URL', $protocol . $host);
 error_log("BASE_URL definida como: " . BASE_URL);
 
-// Ruta base en el sistema de archivos
-if (!defined('BASE_PATH')) {
-    define('BASE_PATH', dirname(__FILE__));
-}
-
-// --- 3. OTRAS CONFIGURACIONES ---
-
-// Habilitar o deshabilitar el modo de depuración
-define('DEBUG_MODE', !$isRailway); // Cambiado para usar $isRailway en lugar de getenv
-
-// Configuración de la zona horaria
-date_default_timezone_set('America/Argentina/Buenos_Aires');
-
-// Configuración de errores
+// Configuración de errores y depuración
+define('DEBUG_MODE', !$isRailway);
 if (DEBUG_MODE) {
     error_log("Modo DEBUG activado");
     ini_set('display_errors', 1);
@@ -321,12 +263,58 @@ if (DEBUG_MODE) {
     error_reporting(0);
 }
 
-// Evitar salida antes de las sesiones
-ob_start();
+// Configuración de la zona horaria
+date_default_timezone_set('America/Argentina/Buenos_Aires');
 
-// Iniciar sesión al principio del archivo
+// Configuración de sesión
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+if ($isRailway) {
+    ini_set('session.cookie_secure', 1);
+}
+
+// Iniciar sesión si no está iniciada
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Configuración de directorios
+$directories = [
+    'uploads' => PROJECT_ROOT . '/uploads',
+    'presupuestos' => PROJECT_ROOT . '/presupuestos',
+    'logs' => PROJECT_ROOT . '/logs',
+    'temp' => PROJECT_ROOT . '/temp',
+    'includes' => PROJECT_ROOT . '/includes',
+    'assets' => PROJECT_ROOT . '/assets'
+];
+
+// Crear y verificar directorios necesarios
+foreach ($directories as $name => $path) {
+    if (!is_dir($path)) {
+        if (!mkdir($path, 0755, true)) {
+            error_log("ERROR: No se pudo crear el directorio: " . $path);
+        } else {
+            error_log("Directorio creado: " . $path);
+        }
+    }
+    define(strtoupper($name) . '_DIR', $path);
+}
+
+// Verificar permisos de directorios críticos
+foreach ($directories as $name => $path) {
+    if (is_dir($path)) {
+        $perms = substr(sprintf('%o', fileperms($path)), -4);
+        error_log("Permisos de $name: $perms");
+        
+        // Intentar establecer permisos si es necesario
+        if (!is_writable($path)) {
+            @chmod($path, 0755);
+            error_log("Intentando establecer permisos 0755 en: " . $path);
+        }
+    }
+}
+
+// Buffer de salida
+ob_start();
 
 ?> 
