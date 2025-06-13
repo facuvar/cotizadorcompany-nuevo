@@ -27,10 +27,10 @@ try {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )";
     
-    if ($conn->query($sql)) {
+    if ($conn->exec($sql) !== false) {
         echo "✅ Tabla plazos_entrega creada o verificada correctamente\n";
     } else {
-        echo "❌ Error al crear tabla plazos_entrega: " . $conn->error . "\n";
+        echo "❌ Error al crear tabla plazos_entrega\n";
     }
     
     // Crear tabla configuracion si no existe
@@ -42,10 +42,10 @@ try {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )";
     
-    if ($conn->query($sql)) {
+    if ($conn->exec($sql) !== false) {
         echo "✅ Tabla configuracion creada o verificada correctamente\n";
     } else {
-        echo "❌ Error al crear tabla configuracion: " . $conn->error . "\n";
+        echo "❌ Error al crear tabla configuracion\n";
     }
     
     // Verificar si hay datos en plazos_entrega

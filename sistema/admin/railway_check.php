@@ -20,14 +20,16 @@ try {
     // Verificar la estructura de las tablas
     $tables = ['plazos_entrega', 'configuracion'];
     foreach ($tables as $table) {
-        $result = $conn->query("SHOW TABLES LIKE '$table'");
-        if ($result->num_rows > 0) {
+        $stmt = $conn->query("SHOW TABLES LIKE '$table'");
+        $exists = $stmt->fetch();
+        
+        if ($exists) {
             echo "✅ Tabla '$table' existe\n";
             
             // Verificar la estructura de la tabla
             $columns = $conn->query("SHOW COLUMNS FROM $table");
             echo "Estructura de la tabla '$table':\n";
-            while ($column = $columns->fetch_assoc()) {
+            while ($column = $columns->fetch(PDO::FETCH_ASSOC)) {
                 echo "  - {$column['Field']} ({$column['Type']})\n";
             }
         } else {
