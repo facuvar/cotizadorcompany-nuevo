@@ -1,45 +1,18 @@
+# Configuración mínima para Railway
 DirectoryIndex cotizador.php index.php
 
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /
-    
-    # Permitir acceso a archivos PHP existentes
-    RewriteCond %{REQUEST_FILENAME} -f
-    RewriteCond %{REQUEST_FILENAME} \.(php)$
-    RewriteRule ^ - [L]
-    
-    # Permitir acceso a directorios existentes
-    RewriteCond %{REQUEST_FILENAME} -d
-    RewriteRule ^ - [L]
-    
-    # Permitir acceso a archivos estáticos
-    RewriteCond %{REQUEST_FILENAME} -f
-    RewriteCond %{REQUEST_FILENAME} \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$
-    RewriteRule ^ - [L]
-    
-    # Solo para rutas que NO son archivos o directorios existentes
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} !^/(cotizador|admin|health|test_|railway_|assets|uploads)
-    RewriteRule ^(.*)$ index.php [L,QSA]
-</IfModule>
+# Forzar mostrar errores
+php_flag display_errors on
+php_value error_reporting E_ALL
 
-# Configuración PHP
-<IfModule mod_php.c>
-    php_value display_errors Off
-    php_value display_startup_errors Off
-    php_value error_reporting E_ALL
-</IfModule>
-
-# Prevenir acceso directo a archivos sensibles
-<Files "config.php">
+# Permitir acceso a todos los archivos PHP
+<Files "*.php">
     Order Allow,Deny
-    Deny from all
+    Allow from all
 </Files>
 
-# Seguridad adicional
-<Files ".env">
+# Proteger archivos sensibles
+<Files "config.php">
     Order Allow,Deny
     Deny from all
 </Files>

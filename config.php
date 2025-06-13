@@ -5,10 +5,12 @@
  */
 
 // Detectar si estamos en Railway
-$isRailway = isset($_ENV['RAILWAY_ENVIRONMENT']) || 
-             isset($_SERVER['RAILWAY_ENVIRONMENT']) ||
-             strpos($_SERVER['HTTP_HOST'] ?? '', 'railway.app') !== false ||
-             strpos($_SERVER['HTTP_HOST'] ?? '', 'up.railway.app') !== false;
+$isRailway = true; // Forzar Railway para pruebas
+
+// Log de detección
+error_log("Detección de Railway:");
+error_log("RAILWAY_ENVIRONMENT: " . ($_ENV['RAILWAY_ENVIRONMENT'] ?? 'No definido'));
+error_log("HTTP_HOST: " . ($_SERVER['HTTP_HOST'] ?? 'No definido'));
 
 if ($isRailway) {
     // ========================================
@@ -22,8 +24,14 @@ if ($isRailway) {
     
     // Configuración de entorno
     define('ENVIRONMENT', 'railway');
-    define('DEBUG_MODE', false);
+    define('DEBUG_MODE', true); // Forzar debug mode
     define('BASE_URL', 'https://' . $_SERVER['HTTP_HOST']);
+    
+    // Log de configuración
+    error_log("Configuración Railway:");
+    error_log("DB_HOST: " . DB_HOST);
+    error_log("DB_NAME: " . DB_NAME);
+    error_log("DB_PORT: " . DB_PORT);
     
 } else {
     // ========================================
