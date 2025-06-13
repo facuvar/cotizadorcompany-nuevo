@@ -9,13 +9,13 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Cargar configuración
-$configPath = __DIR__ . '/../sistema/config.php';
+// Cargar configuración - RUTA CORREGIDA
+$configPath = __DIR__ . '/../config.php'; // Subir un nivel desde /api para llegar a la raíz
 if (!file_exists($configPath)) {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Archivo de configuración no encontrado'
+        'message' => 'Archivo de configuración no encontrado en ' . $configPath
     ]);
     exit;
 }
@@ -28,7 +28,7 @@ if (!file_exists($dbPath)) {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Archivo de base de datos no encontrado'
+        'message' => 'Archivo de base de datos no encontrado en ' . $dbPath
     ]);
     exit;
 }
