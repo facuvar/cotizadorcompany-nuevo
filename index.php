@@ -1,5 +1,21 @@
 <?php
-// Archivo principal para Railway - PRUEBA FACUNDO 2
+// Verificar si es una petición específica
+$requestUri = $_SERVER['REQUEST_URI'] ?? '';
+$pathInfo = parse_url($requestUri, PHP_URL_PATH);
+
+// Si la petición es específica para archivos que existen, redirigir
+if (strpos($pathInfo, '.php') !== false || strpos($pathInfo, 'admin') !== false || strpos($pathInfo, 'assets') !== false) {
+    // No hacer nada, dejar que el servidor maneje la petición
+    return;
+}
+
+// Si es la raíz, redirigir al cotizador
+if ($pathInfo === '/' || $pathInfo === '' || $pathInfo === '/index.php') {
+    header('Location: cotizador.php');
+    exit;
+}
+
+// Si llegamos aquí, mostrar página de status para debug
 header('Content-Type: text/html; charset=UTF-8');
 
 // Verificar entorno
@@ -25,12 +41,14 @@ if ($isRailway) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cotizador Company</title>
+    <title>Cotizador Company - Status</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; background: #f0f0f0; }
         .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
         .btn { display: inline-block; padding: 12px 20px; margin: 10px 5px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; }
         .btn:hover { background: #0056b3; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
         .status { padding: 15px; margin: 20px 0; border-radius: 4px; }
         .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
@@ -39,7 +57,12 @@ if ($isRailway) {
 </head>
 <body>
     <div class="container">
-        <h1>🏢 Cotizador Company</h1>
+        <h1>🏢 Cotizador Company - Status</h1>
+        
+        <div class="status info">
+            ℹ️ <strong>Página de Debug/Status</strong><br>
+            Esta página se muestra solo para debugging. Normalmente se debería redirigir al cotizador.
+        </div>
         
         <?php if ($isRailway): ?>
             <div class="status success">
@@ -64,10 +87,11 @@ if ($isRailway) {
             </div>
         <?php endif; ?>
         
-        <p>Sistema de Presupuestos Online funcionando correctamente.</p>
+        <p><strong>URI solicitada:</strong> <?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? 'N/A') ?></p>
         
         <div>
-            <a href="cotizador.php" class="btn">📊 Cotizador</a>
+            <a href="cotizador.php" class="btn btn-success">📊 IR AL COTIZADOR</a>
+            <a href="admin/" class="btn">👤 Admin</a>
             <a href="health.php" class="btn">🔍 Health Check</a>
             <a href="test_railway_config.php" class="btn">🚂 Test DB</a>
         </div>
