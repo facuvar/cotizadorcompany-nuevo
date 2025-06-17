@@ -214,15 +214,6 @@ if (isset($_GET['logout'])) {
             font-weight: 600;
             color: var(--accent-success);
         }
-
-        .railway-badge {
-            background: #0066ff;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
@@ -234,15 +225,10 @@ if (isset($_GET['logout'])) {
                     <span id="logo-icon"></span>
                     Panel Admin
                 </h1>
-                <?php if (defined('IS_RAILWAY') && IS_RAILWAY): ?>
-                    <div class="text-center">
-                        <span class="railway-badge">🚂 Railway</span>
-                    </div>
-                <?php endif; ?>
             </div>
             
             <nav class="sidebar-menu">
-                <a href="dashboard.php" class="sidebar-item active">
+                <a href="index.php" class="sidebar-item active">
                     <span id="nav-dashboard-icon"></span>
                     <span>Dashboard</span>
                 </a>
@@ -263,7 +249,7 @@ if (isset($_GET['logout'])) {
                         <span id="nav-calculator-icon"></span>
                         <span>Ir al Cotizador</span>
                     </a>
-                    <a href="?logout=1" class="sidebar-item" style="color: var(--accent-danger);">
+                    <a href="index.php?logout=1" class="sidebar-item" style="color: var(--accent-danger);">
                         <span id="nav-logout-icon"></span>
                         <span>Cerrar Sesión</span>
                     </a>
