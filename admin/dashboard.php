@@ -113,33 +113,108 @@ if (isset($_GET['logout'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Sistema de Presupuestos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/modern-dark-theme.css">
     <style>
-        body { background-color: #f8f9fa; }
-        .sidebar {
-            min-height: 100vh;
-            background-color: #343a40;
-            color: white;
+        .dashboard-layout {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
         }
-        .sidebar a {
-            color: rgba(255,255,255,.8);
-            text-decoration: none;
-            display: block;
-            padding: 10px 15px;
-            transition: all 0.3s;
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
-        .sidebar a:hover, .sidebar a.active {
-            color: white;
-            background-color: rgba(255,255,255,.1);
+
+        .content-wrapper {
+            flex: 1;
+            padding: var(--spacing-xl);
+            overflow-y: auto;
         }
+
         .stat-card {
-            border-radius: 5px;
-            padding: 20px;
-            margin-bottom: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            background-color: white;
         }
+
+        .stat-value {
+            font-size: var(--text-3xl);
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .stat-label {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .recent-quotes {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .recent-quotes-header {
+            background: var(--bg-secondary);
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .recent-quotes-title {
+            font-size: var(--text-lg);
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .quote-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .quote-item:last-child {
+            border-bottom: none;
+        }
+
+        .quote-info {
+            flex: 1;
+        }
+
+        .quote-client {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .quote-date {
+            font-size: var(--text-xs);
+            color: var(--text-secondary);
+        }
+
+        .quote-total {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--accent-success);
+        }
+
         .railway-badge {
             background: #0066ff;
             color: white;
@@ -151,147 +226,183 @@ if (isset($_GET['logout'])) {
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <?php if (defined('IS_RAILWAY') && IS_RAILWAY): ?>
-                        <div class="text-center">
-                            <span class="railway-badge">🚂 Railway</span>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <div class="text-center mb-4">
-                        <h5>Panel Admin</h5>
-                        <p class="small">Bienvenido, <?php echo htmlspecialchars($_SESSION['admin_user'] ?? 'admin'); ?></p>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 style="font-size: var(--text-xl); display: flex; align-items: center; gap: var(--spacing-sm);">
+                    <span id="logo-icon"></span>
+                    Panel Admin
+                </h1>
+                <?php if (defined('IS_RAILWAY') && IS_RAILWAY): ?>
+                    <div class="text-center">
+                        <span class="railway-badge">🚂 Railway</span>
                     </div>
-                    
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a href="dashboard.php" class="active">
-                                <i class="bi bi-speedometer2"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="gestionar_datos.php">
-                                <i class="bi bi-database-gear"></i> Gestionar Datos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="presupuestos.php">
-                                <i class="bi bi-file-earmark-text"></i> Presupuestos
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="../cotizador.php" target="_blank">
-                                <i class="bi bi-calculator"></i> Cotizador
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="../" target="_blank">
-                                <i class="bi bi-house"></i> Sitio Web
-                            </a>
-                        </li>
-                        <li class="nav-item mt-5">
-                            <a href="?logout=1" class="text-danger">
-                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+                <?php endif; ?>
             </div>
             
-            <!-- Main content -->
-            <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="content p-4">
-                    <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
-                        <h1 class="h2">🏠 Dashboard</h1>
+            <nav class="sidebar-menu">
+                <a href="dashboard.php" class="sidebar-item active">
+                    <span id="nav-dashboard-icon"></span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="gestionar_datos.php" class="sidebar-item">
+                    <span id="nav-data-icon"></span>
+                    <span>Gestionar Datos</span>
+                </a>
+                <a href="presupuestos.php" class="sidebar-item">
+                    <span id="nav-quotes-icon"></span>
+                    <span>Presupuestos</span>
+                </a>
+                <a href="ajustar_precios.php" class="sidebar-item">
+                    <span id="nav-prices-icon"></span>
+                    <span>Ajustar Precios</span>
+                </a>
+                <div style="margin-top: auto; padding: var(--spacing-md);">
+                    <a href="../cotizador.php" class="sidebar-item" target="_blank">
+                        <span id="nav-calculator-icon"></span>
+                        <span>Ir al Cotizador</span>
+                    </a>
+                    <a href="?logout=1" class="sidebar-item" style="color: var(--accent-danger);">
+                        <span id="nav-logout-icon"></span>
+                        <span>Cerrar Sesión</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="dashboard-header" style="background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); padding: var(--spacing-lg) var(--spacing-xl);">
+                <div class="header-grid" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <h2 class="header-title" style="font-size: var(--text-lg); font-weight: 600;">Dashboard</h2>
+                        <p class="header-subtitle" style="font-size: var(--text-sm); color: var(--text-secondary);">Bienvenido, <?php echo htmlspecialchars($_SESSION['admin_user'] ?? 'admin'); ?></p>
+                    </div>
+                    
+                    <div class="header-actions" style="display: flex; gap: var(--spacing-md);">
+                        <a href="../cotizador.php" target="_blank" class="btn btn-secondary">
+                            <span id="calculator-icon"></span>
+                            Ir al Cotizador
+                        </a>
+                        <a href="gestionar_datos.php" class="btn btn-primary">
+                            <span id="data-icon"></span>
+                            Gestionar Datos
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content-wrapper">
+                <?php if (!$dbConnected): ?>
+                    <div class="alert alert-warning fade-in">
+                        <span id="warning-icon"></span>
+                        <strong>Advertencia:</strong> Conexión a base de datos limitada.
+                        <?php if (defined('ENVIRONMENT') && ENVIRONMENT === 'railway'): ?>
+                            Verificando conexión a Railway MySQL...
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value"><?php echo $totalPresupuestos; ?></div>
+                        <div class="stat-label">Presupuestos</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-value"><?php echo $totalProductos; ?></div>
+                        <div class="stat-label">Productos</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-value"><?php echo $totalOpciones; ?></div>
+                        <div class="stat-label">Opciones</div>
+                    </div>
+                </div>
+                
+                <!-- Recent Quotes -->
+                <?php if ($ultimosPresupuestos && $ultimosPresupuestos->num_rows > 0): ?>
+                <div class="recent-quotes">
+                    <div class="recent-quotes-header">
+                        <h3 class="recent-quotes-title">Últimos Presupuestos</h3>
+                    </div>
+                    <?php while ($presupuesto = $ultimosPresupuestos->fetch_assoc()): ?>
+                    <div class="quote-item">
+                        <div class="quote-info">
+                            <div class="quote-client"><?php echo htmlspecialchars($presupuesto['cliente_nombre'] ?? 'Cliente'); ?></div>
+                            <div class="quote-date"><?php echo date('d/m/Y H:i', strtotime($presupuesto['created_at'] ?? $presupuesto['fecha_creacion'] ?? 'now')); ?></div>
+                        </div>
+                        <div class="quote-total">$<?php echo number_format($presupuesto['total'] ?? 0, 2); ?></div>
+                    </div>
+                    <?php endwhile; ?>
+                </div>
+                <?php else: ?>
+                <div class="stat-card">
+                    <div style="text-align: center; color: var(--text-secondary);">
+                        <div style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.3;">📊</div>
+                        <h3>No hay presupuestos aún</h3>
+                        <p>Los presupuestos generados aparecerán aquí</p>
+                        <a href="../cotizador.php" target="_blank" class="btn btn-primary" style="margin-top: var(--spacing-md);">
+                            Crear primer presupuesto
+                        </a>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Quick Actions -->
+                <div class="stat-card">
+                    <h3 style="margin-bottom: var(--spacing-lg);">Acciones Rápidas</h3>
+                    <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
+                        <a href="gestionar_datos.php" class="btn btn-primary">
+                            <span id="data-icon-2"></span>
+                            Gestionar Datos
+                        </a>
+                        <a href="presupuestos.php" class="btn btn-secondary">
+                            <span id="quotes-icon-2"></span>
+                            Ver Presupuestos
+                        </a>
+                        <a href="ajustar_precios.php" class="btn btn-secondary">
+                            <span id="prices-icon-2"></span>
+                            Ajustar Precios
+                        </a>
+                        <a href="../cotizador.php" target="_blank" class="btn btn-success">
+                            <span id="calculator-icon-2"></span>
+                            Ir al Cotizador
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- System Info -->
+                <div class="stat-card">
+                    <h3 style="margin-bottom: var(--spacing-lg);">Estado del Sistema</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
                         <div>
-                            <a href="../cotizador.php" target="_blank" class="btn btn-primary btn-sm">
-                                🚀 Ver Cotizador
-                            </a>
+                            <p><strong>Entorno:</strong> 
+                                <?php echo defined('ENVIRONMENT') && ENVIRONMENT === 'railway' ? '🚂 Railway' : '💻 Local'; ?>
+                            </p>
+                            <p><strong>PHP Version:</strong> <?php echo PHP_VERSION; ?></p>
+                            <p><strong>Base de datos:</strong> 
+                                <?php echo $dbConnected ? '✅ Conectada' : '❌ Desconectada'; ?>
+                            </p>
                         </div>
-                    </div>
-                    
-                    <?php if (!$dbConnected): ?>
-                        <div class="alert alert-warning">
-                            ⚠️ <strong>Advertencia:</strong> Conexión a base de datos limitada.
-                            <?php if (defined('IS_RAILWAY') && IS_RAILWAY): ?>
-                                Verificando conexión a Railway MySQL...
+                        <div>
+                            <p><strong>Usuario:</strong> <?php echo $_SESSION['admin_user'] ?? 'admin'; ?></p>
+                            <p><strong>Sesión iniciada:</strong> <?php echo date('Y-m-d H:i:s'); ?></p>
+                            <?php if (defined('BASE_URL')): ?>
+                                <p><strong>URL Base:</strong> <?php echo BASE_URL; ?></p>
                             <?php endif; ?>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <!-- Stats -->
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="stat-card d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h3><?php echo $totalPresupuestos; ?></h3>
-                                    <p class="text-muted">Presupuestos</p>
-                                </div>
-                                <i class="bi bi-file-text text-primary" style="font-size: 2.5rem; opacity: 0.3;"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-4">
-                            <div class="stat-card d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h3><?php echo $totalProductos; ?></h3>
-                                    <p class="text-muted">Productos</p>
-                                </div>
-                                <i class="bi bi-box text-success" style="font-size: 2.5rem; opacity: 0.3;"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-4">
-                            <div class="stat-card d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h3><?php echo $totalOpciones; ?></h3>
-                                    <p class="text-muted">Opciones</p>
-                                </div>
-                                <i class="bi bi-list-check text-warning" style="font-size: 2.5rem; opacity: 0.3;"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Info adicional -->
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>📊 Estado del Sistema</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <p><strong>Entorno:</strong> 
-                                                <?php echo defined('IS_RAILWAY') && IS_RAILWAY ? '🚂 Railway' : '💻 Local'; ?>
-                                            </p>
-                                            <p><strong>PHP Version:</strong> <?php echo PHP_VERSION; ?></p>
-                                            <p><strong>Base de datos:</strong> 
-                                                <?php echo $dbConnected ? '✅ Conectada' : '❌ Desconectada'; ?>
-                                            </p>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <p><strong>Usuario:</strong> <?php echo $_SESSION['admin_user'] ?? 'admin'; ?></p>
-                                            <p><strong>Sesión iniciada:</strong> <?php echo date('Y-m-d H:i:s'); ?></p>
-                                            <?php if (defined('BASE_URL')): ?>
-                                                <p><strong>URL Base:</strong> <?php echo BASE_URL; ?></p>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
     
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Icons Script -->
+    <script src="../assets/js/icons.js"></script>
 </body>
 </html>

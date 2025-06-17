@@ -268,15 +268,13 @@ if (DEBUG_MODE) {
 // Configuración de la zona horaria
 date_default_timezone_set('America/Argentina/Buenos_Aires');
 
-// Configuración de sesión
-ini_set('session.cookie_httponly', 1);
-ini_set('session.use_only_cookies', 1);
-if ($isRailway) {
-    ini_set('session.cookie_secure', 1);
-}
-
-// Iniciar sesión si no está iniciada
+// Configuración de sesión (solo si no hay sesión activa)
 if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.use_only_cookies', 1);
+    if ($isRailway) {
+        ini_set('session.cookie_secure', 1);
+    }
     session_start();
 }
 
