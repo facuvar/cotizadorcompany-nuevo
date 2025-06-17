@@ -278,7 +278,7 @@ if (isset($_GET['logout'])) {
                 <div class="header-grid" style="display: flex; align-items: center; justify-content: space-between;">
                     <div>
                         <h2 class="header-title" style="font-size: var(--text-lg); font-weight: 600;">Dashboard</h2>
-                        <p class="header-subtitle" style="font-size: var(--text-sm); color: var(--text-secondary);">Bienvenido, <?php echo htmlspecialchars($_SESSION['admin_user'] ?? 'admin'); ?></p>
+                        <p class="header-subtitle" style="font-size: var(--text-sm); color: var(--text-secondary);">Panel de control principal del sistema</p>
                     </div>
                     
                     <div class="header-actions" style="display: flex; gap: var(--spacing-md);">
