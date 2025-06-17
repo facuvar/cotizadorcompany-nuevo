@@ -67,6 +67,25 @@ if (!$dbLoaded) {
     exit;
 }
 
+// Cargar el manejador de correos
+$emailPaths = [
+    __DIR__ . '/../includes/email_handler.php',   // Ubicación principal
+    __DIR__ . '/../sistema/includes/email_handler.php',   // Ubicación alternativa
+];
+
+$emailLoaded = false;
+foreach ($emailPaths as $emailPath) {
+    if (file_exists($emailPath)) {
+        require_once $emailPath;
+        $emailLoaded = true;
+        break;
+    }
+}
+
+if (!$emailLoaded) {
+    error_log('Advertencia: No se pudo cargar el manejador de correos');
+}
+
 try {
     // Validar datos requeridos
     $nombre = $_POST['nombre'] ?? '';
@@ -306,12 +325,52 @@ try {
         $stmt_detail->execute();
     }
     
+    // Preparar datos para el correo de notificación
+    $presupuesto_data = [
+        'quote_id' => $presupuesto_id,
+        'numero_presupuesto' => $numero_presupuesto,
+        'totals' => [
+            'subtotal' => $subtotal,
+            'descuento_porcentaje' => $descuento_porcentaje,
+            'descuento_monto' => $descuento,
+            'total' => $total
+        ],
+        'customer' => [
+            'nombre' => $nombre,
+            'email' => $email,
+            'telefono' => $telefono,
+            'empresa' => $empresa
+        ],
+        'ubicacion_obra' => $ubicacion_obra,
+        'observaciones' => $observaciones,
+        'plazo_entrega' => $plazo,
+        'opciones_count' => count($opciones_detalle)
+    ];
+    
+    // Enviar correo de notificación si el manejador está disponible
+    $email_enviado = false;
+    if ($emailLoaded && class_exists('EmailHandler')) {
+        try {
+            $emailHandler = new EmailHandler();
+            $email_enviado = $emailHandler->enviarNotificacionPresupuesto($presupuesto_data);
+            
+            if ($email_enviado) {
+                error_log("Correo de notificación enviado exitosamente para presupuesto: " . $numero_presupuesto);
+            } else {
+                error_log("Error al enviar correo de notificación para presupuesto: " . $numero_presupuesto);
+            }
+        } catch (Exception $e) {
+            error_log("Error enviando correo para presupuesto {$numero_presupuesto}: " . $e->getMessage());
+        }
+    }
+    
     // Respuesta exitosa
     echo json_encode([
         'success' => true,
         'message' => 'Presupuesto generado exitosamente',
         'quote_id' => $presupuesto_id,
         'numero_presupuesto' => $numero_presupuesto,
+        'email_enviado' => $email_enviado,
         'totals' => [
             'subtotal' => $subtotal,
             'descuento_porcentaje' => $descuento_porcentaje,
