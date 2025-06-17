@@ -390,5 +390,38 @@ if (isset($_GET['logout'])) {
     
     <!-- Icons Script -->
     <script src="../assets/js/modern-icons.js"></script>
+    <script>
+        // Cargar iconos
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar
+            document.getElementById('logo-icon').innerHTML = modernUI.getIcon('chart');
+            document.getElementById('nav-dashboard-icon').innerHTML = modernUI.getIcon('dashboard');
+            document.getElementById('nav-data-icon').innerHTML = modernUI.getIcon('settings');
+            document.getElementById('nav-quotes-icon').innerHTML = modernUI.getIcon('document');
+            document.getElementById('nav-prices-icon').innerHTML = modernUI.getIcon('dollar');
+            document.getElementById('nav-calculator-icon').innerHTML = modernUI.getIcon('cart');
+            document.getElementById('nav-logout-icon').innerHTML = modernUI.getIcon('logout');
+            
+            // Header
+            const calculatorIcon = document.getElementById('calculator-icon');
+            if (calculatorIcon) calculatorIcon.innerHTML = modernUI.getIcon('cart');
+            const dataIcon = document.getElementById('data-icon');
+            if (dataIcon) dataIcon.innerHTML = modernUI.getIcon('settings');
+            
+            // Alerts
+            const warningIcon = document.getElementById('warning-icon');
+            if (warningIcon) warningIcon.innerHTML = modernUI.getIcon('warning');
+            
+            // Quick Actions
+            const dataIcon2 = document.getElementById('data-icon-2');
+            if (dataIcon2) dataIcon2.innerHTML = modernUI.getIcon('settings');
+            const quotesIcon2 = document.getElementById('quotes-icon-2');
+            if (quotesIcon2) quotesIcon2.innerHTML = modernUI.getIcon('document');
+            const pricesIcon2 = document.getElementById('prices-icon-2');
+            if (pricesIcon2) pricesIcon2.innerHTML = modernUI.getIcon('dollar');
+            const calculatorIcon2 = document.getElementById('calculator-icon-2');
+            if (calculatorIcon2) calculatorIcon2.innerHTML = modernUI.getIcon('cart');
+        });
+    </script>
 </body>
 </html>
