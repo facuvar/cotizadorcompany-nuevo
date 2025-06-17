@@ -4,19 +4,43 @@
  * Usado por el cotizador moderno
  */
 
-// Cargar configuración
-$configPath = __DIR__ . '/../sistema/config.php';
-if (!file_exists($configPath)) {
-    die("Error: Archivo de configuración no encontrado");
-}
-require_once $configPath;
+// Cargar configuración - buscar en múltiples ubicaciones
+$configPaths = [
+    __DIR__ . '/../config.php',           // Railway (raíz del proyecto)
+    __DIR__ . '/../sistema/config.php',   // Local (dentro de sistema)
+];
 
-// Cargar DB
-$dbPath = __DIR__ . '/../sistema/includes/db.php';
-if (!file_exists($dbPath)) {
-    die("Error: Archivo de base de datos no encontrado");
+$configLoaded = false;
+foreach ($configPaths as $configPath) {
+    if (file_exists($configPath)) {
+        require_once $configPath;
+        $configLoaded = true;
+        break;
+    }
 }
-require_once $dbPath;
+
+if (!$configLoaded) {
+    die("Error: Archivo de configuración no encontrado en ninguna ubicación");
+}
+
+// Cargar DB - buscar en múltiples ubicaciones
+$dbPaths = [
+    __DIR__ . '/../sistema/includes/db.php',   // Local
+    __DIR__ . '/../includes/db.php',           // Railway alternativo
+];
+
+$dbLoaded = false;
+foreach ($dbPaths as $dbPath) {
+    if (file_exists($dbPath)) {
+        require_once $dbPath;
+        $dbLoaded = true;
+        break;
+    }
+}
+
+if (!$dbLoaded) {
+    die("Error: Archivo de base de datos no encontrado en ninguna ubicación");
+}
 
 // Obtener ID del presupuesto
 $presupuesto_id = $_GET['id'] ?? 0;

@@ -9,31 +9,53 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Cargar configuración - RUTA CORREGIDA
-$configPath = __DIR__ . '/../config.php'; // Subir un nivel desde /api para llegar a la raíz
-if (!file_exists($configPath)) {
+// Cargar configuración - buscar en múltiples ubicaciones
+$configPaths = [
+    __DIR__ . '/../config.php',           // Railway (raíz del proyecto)
+    __DIR__ . '/../sistema/config.php',   // Local (dentro de sistema)
+];
+
+$configLoaded = false;
+foreach ($configPaths as $configPath) {
+    if (file_exists($configPath)) {
+        require_once $configPath;
+        $configLoaded = true;
+        break;
+    }
+}
+
+if (!$configLoaded) {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Archivo de configuración no encontrado en ' . $configPath
+        'message' => 'Archivo de configuración no encontrado en ninguna ubicación'
     ]);
     exit;
 }
 
-require_once $configPath;
+// Cargar DB - buscar en múltiples ubicaciones
+$dbPaths = [
+    __DIR__ . '/../sistema/includes/db.php',   // Local
+    __DIR__ . '/../includes/db.php',           // Railway alternativo
+];
 
-// Cargar DB
-$dbPath = __DIR__ . '/../sistema/includes/db.php';
-if (!file_exists($dbPath)) {
+$dbLoaded = false;
+foreach ($dbPaths as $dbPath) {
+    if (file_exists($dbPath)) {
+        require_once $dbPath;
+        $dbLoaded = true;
+        break;
+    }
+}
+
+if (!$dbLoaded) {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Archivo de base de datos no encontrado en ' . $dbPath
+        'message' => 'Archivo de base de datos no encontrado en ninguna ubicación'
     ]);
     exit;
 }
-
-require_once $dbPath;
 
 try {
     $db = Database::getInstance();
