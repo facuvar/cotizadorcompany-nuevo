@@ -389,6 +389,6 @@ if (isset($_GET['logout'])) {
     </div>
     
     <!-- Icons Script -->
-    <script src="../assets/js/icons.js"></script>
+    <script src="../assets/js/modern-icons.js"></script>
 </body>
 </html>
