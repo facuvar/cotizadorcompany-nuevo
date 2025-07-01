@@ -1,6 +1,7 @@
 <?php
 // Archivo de diagnóstico para Railway - SIN autenticación para debugging
 // NOTA: Eliminar este archivo después de resolver el problema
+// Force deploy: 2025-01-07 trigger
 
 header('Content-Type: text/html; charset=utf-8');
 
