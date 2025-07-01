@@ -1,4 +1,4 @@
-# Configuración de Correos Electrónicos - Sistema de Presupuestos Company - ----
+# Configuración de Correos Electrónicos - Sistema de Presupuestos Company - -----
 
 ## Funcionalidad Implementada
 
