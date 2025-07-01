@@ -8,23 +8,47 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
-// Cargar configuración
-$configPath = __DIR__ . '/../sistema/config.php';
-if (!file_exists($configPath)) {
+// Cargar configuración - buscar en múltiples ubicaciones
+$configPaths = [
+    __DIR__ . '/../config.php',           // Railway (raíz del proyecto)
+    __DIR__ . '/../sistema/config.php',   // Local (dentro de sistema)
+];
+
+$configLoaded = false;
+foreach ($configPaths as $configPath) {
+    if (file_exists($configPath)) {
+        require_once $configPath;
+        $configLoaded = true;
+        break;
+    }
+}
+
+if (!$configLoaded) {
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'error' => 'Archivo de configuración no encontrado']);
     exit;
 }
-require_once $configPath;
 
-// Cargar DB
-$dbPath = __DIR__ . '/../sistema/includes/db.php';
-if (!file_exists($dbPath)) {
+// Cargar DB - buscar en múltiples ubicaciones
+$dbPaths = [
+    __DIR__ . '/../sistema/includes/db.php',   // Local
+    __DIR__ . '/../includes/db.php',           // Railway alternativo
+];
+
+$dbLoaded = false;
+foreach ($dbPaths as $dbPath) {
+    if (file_exists($dbPath)) {
+        require_once $dbPath;
+        $dbLoaded = true;
+        break;
+    }
+}
+
+if (!$dbLoaded) {
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'error' => 'Archivo de base de datos no encontrado']);
     exit;
 }
-require_once $dbPath;
 
 // Configurar cabeceras para JSON
 header('Content-Type: application/json');
