@@ -68,7 +68,7 @@ if ($isRailway) {
     $db_host = 'localhost';
     $db_user = 'root';
     $db_pass = '';
-    $db_name = 'company_presupuestos';
+    $db_name = 'cotizador_ascensores';
     $db_port = 3306;
 }
 
