@@ -1018,7 +1018,7 @@ if (isset($_GET['error'])) {
                         <div class="mini-stat-value">
                             <?php 
                             $activas = array_filter($opciones, function($o) {
-                                return $o['precio_90_dias'] > 0 || $o['precio_160_dias'] > 0 || $o['precio_270_dias'] > 0;
+                                return ($o['precio_90_dias'] ?? 0) > 0 || ($o['precio_160_dias'] ?? 0) > 0 || ($o['precio_270_dias'] ?? 0) > 0;
                             });
                             echo count($activas);
                             ?>
@@ -1101,7 +1101,7 @@ if (isset($_GET['error'])) {
                                 <?php foreach ($opciones as $opcion): ?>
                                 <div class="table-row opcion-row" data-categoria="<?php echo $opcion['categoria_id']; ?>" data-nombre="<?php echo strtolower($opcion['nombre']); ?>">
                                     <div class="table-cell">
-                                        <span class="badge badge-primary">
+                                        <span class="badge badge-primary" style="background-color: #<?php echo substr(md5($opcion['categoria_nombre']), 0, 6); ?>; color: #fff;">
                                             <?php echo htmlspecialchars($opcion['categoria_nombre'] ?? 'Sin categoría'); ?>
                                         </span>
                                     </div>
@@ -1110,28 +1110,30 @@ if (isset($_GET['error'])) {
                                             #<?php echo $posiciones_por_categoria[$opcion['id']] ?? 0; ?>
                                         </span>
                                     </div>
-                                    <div class="table-cell">
+                                    <div class="table-cell cell-name">
                                         <strong><?php echo htmlspecialchars($opcion['nombre']); ?></strong>
                                     </div>
                                     <div class="table-cell price-cell">
-                                        <?php echo $opcion['precio_160_dias'] > 0 ? '$' . number_format($opcion['precio_160_dias'], 2, ',', '.') : '-'; ?>
+                                        <?php echo isset($opcion['precio_160_dias']) && $opcion['precio_160_dias'] > 0 ? '$' . number_format($opcion['precio_160_dias'], 2, ',', '.') : '-'; ?>
                                     </div>
                                     <div class="table-cell price-cell">
-                                        <?php echo $opcion['precio_90_dias'] > 0 ? '$' . number_format($opcion['precio_90_dias'], 2, ',', '.') : '-'; ?>
+                                        <?php echo isset($opcion['precio_90_dias']) && $opcion['precio_90_dias'] > 0 ? '$' . number_format($opcion['precio_90_dias'], 2, ',', '.') : '-'; ?>
                                     </div>
                                     <div class="table-cell price-cell">
-                                        <?php echo $opcion['precio_270_dias'] > 0 ? '$' . number_format($opcion['precio_270_dias'], 2, ',', '.') : '-'; ?>
+                                        <?php echo isset($opcion['precio_270_dias']) && $opcion['precio_270_dias'] > 0 ? '$' . number_format($opcion['precio_270_dias'], 2, ',', '.') : '-'; ?>
                                     </div>
                                     <div class="table-cell">
-                                        <?php if ($opcion['descuento'] > 0): ?>
-                                            <span class="badge badge-success"><?php echo $opcion['descuento']; ?>%</span>
+                                        <?php 
+                                        $descuento = $opcion['descuento_maximo'] ?? ($opcion['descuento'] ?? 0);
+                                        if ($descuento > 0): ?>
+                                            <span class="badge badge-success"><?php echo $descuento; ?>%</span>
                                         <?php else: ?>
                                             -
                                         <?php endif; ?>
                                     </div>
                                     <div class="table-cell">
                                         <div class="order-controls">
-                                            <form method="POST" style="display: inline;">
+                                            <form method="POST" action="gestionar_datos.php" style="display: inline;">
                                                 <input type="hidden" name="action" value="move_opcion_up">
                                                 <input type="hidden" name="id" value="<?php echo $opcion['id']; ?>">
                                                 <button type="submit" class="btn btn-xs btn-secondary" title="Subir">
@@ -1139,13 +1141,13 @@ if (isset($_GET['error'])) {
                                                 </button>
                                             </form>
                                             <input type="number" 
-                                                   class="position-input" 
-                                                   value="<?php echo $opcion['orden'] ?? 0; ?>" 
-                                                   min="1" 
-                                                   title="Posición (Enter para aplicar)"
-                                                   onkeypress="if(event.key==='Enter') moverOpcionAPosicion(<?php echo $opcion['id']; ?>, this.value, <?php echo $opcion['categoria_id']; ?>)"
-                                                   onblur="if(this.value != <?php echo $opcion['orden'] ?? 0; ?>) moverOpcionAPosicion(<?php echo $opcion['id']; ?>, this.value, <?php echo $opcion['categoria_id']; ?>)">
-                                            <form method="POST" style="display: inline;">
+                                                    class="position-input" 
+                                                    value="<?php echo $opcion['orden'] ?? 0; ?>" 
+                                                    min="1" 
+                                                    title="Posición (Enter para aplicar)"
+                                                    onkeypress="if(event.key==='Enter') moverOpcionAPosicion(<?php echo $opcion['id']; ?>, this.value, <?php echo $opcion['categoria_id']; ?>)"
+                                                    onblur="if(this.value != <?php echo $opcion['orden'] ?? 0; ?>) moverOpcionAPosicion(<?php echo $opcion['id']; ?>, this.value, <?php echo $opcion['categoria_id']; ?>)">
+                                            <form method="POST" action="gestionar_datos.php" style="display: inline;">
                                                 <input type="hidden" name="action" value="move_opcion_down">
                                                 <input type="hidden" name="id" value="<?php echo $opcion['id']; ?>">
                                                 <button type="submit" class="btn btn-xs btn-secondary" title="Bajar">
@@ -1470,11 +1472,9 @@ if (isset($_GET['error'])) {
             document.getElementById('search-icon').innerHTML = modernUI.getIcon('search');
             
             // Table actions
-            <?php foreach ($opciones as $opcion): ?>
-            document.getElementById('duplicate-icon-<?php echo $opcion['id']; ?>').innerHTML = modernUI.getIcon('duplicate', 'icon-sm');
-            document.getElementById('edit-icon-<?php echo $opcion['id']; ?>').innerHTML = modernUI.getIcon('edit', 'icon-sm');
-            document.getElementById('delete-icon-<?php echo $opcion['id']; ?>').innerHTML = modernUI.getIcon('delete', 'icon-sm');
-            <?php endforeach; ?>
+            document.querySelectorAll('[id^="duplicate-icon-"]').forEach(el => el.innerHTML = modernUI.getIcon('duplicate', 'icon-sm'));
+            document.querySelectorAll('[id^="edit-icon-"]').forEach(el => el.innerHTML = modernUI.getIcon('edit', 'icon-sm'));
+            document.querySelectorAll('[id^="delete-icon-"]').forEach(el => el.innerHTML = modernUI.getIcon('delete', 'icon-sm'));
             
             // Modal
             document.getElementById('close-modal-icon').innerHTML = modernUI.getIcon('close');
@@ -1626,18 +1626,18 @@ if (isset($_GET['error'])) {
                         // Mostrar modal
                         document.getElementById('modalEditar').classList.add('active');
                     } else {
-                        modernUI.showToast('Error al cargar los datos de la opción', 'error');
+                        alert('Error al cargar los datos de la opción');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    modernUI.showToast('Error al cargar los datos de la opción', 'error');
+                    alert('Error al cargar los datos de la opción');
                 });
         }
 
         function exportarDatos() {
             // TODO: Implementar exportación
-            modernUI.showToast('Función de exportación en desarrollo', 'info');
+            alert('Función de exportación en desarrollo');
         }
 
         // Formatear precios con puntos y comas

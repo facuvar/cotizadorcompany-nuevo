@@ -8,76 +8,36 @@
  * en Railway o en un entorno local.
  */
 
-// --- 1. CONFIGURACIÓN DE LA BASE DE DATOS ---
+// Cargar variables de entorno desde el archivo .env en el entorno local
+if (file_exists(__DIR__ . '/.env')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->load();
+}
 
-// Logging inicial para diagnóstico
-error_log("=== INICIO DE CONFIGURACIÓN ===");
-error_log("REQUEST_URI: " . ($_SERVER['REQUEST_URI'] ?? 'No definido'));
-error_log("SCRIPT_FILENAME: " . ($_SERVER['SCRIPT_FILENAME'] ?? 'No definido'));
-error_log("DOCUMENT_ROOT: " . ($_SERVER['DOCUMENT_ROOT'] ?? 'No definido'));
-
-// Detectar Railway de manera más robusta
-$isRailway = (getenv('RAILWAY_ENVIRONMENT') === 'production' || 
-             getenv('RAILWAY_ENVIRONMENT') === 'true' || 
-             isset($_ENV['RAILWAY_ENVIRONMENT']) ||
-             strpos($_SERVER['HTTP_HOST'] ?? '', 'railway.app') !== false);
-
-// Log detallado del entorno
-error_log("=== VARIABLES DE ENTORNO ===");
-error_log("RAILWAY_ENVIRONMENT: " . (getenv('RAILWAY_ENVIRONMENT') ?: 'No definido'));
-error_log("HTTP_HOST: " . ($_SERVER['HTTP_HOST'] ?? 'No definido'));
-error_log("Detección final - isRailway: " . ($isRailway ? 'true' : 'false'));
-
-// Definir constantes de entorno
+// Detectar si estamos en Railway
+$isRailway = isset($_ENV['RAILWAY_ENVIRONMENT']);
 define('ENVIRONMENT', $isRailway ? 'railway' : 'local');
-error_log("Entorno definido como: " . ENVIRONMENT);
 
-// Definir rutas base (solo si no están definidas)
-if (!defined('PROJECT_ROOT')) {
-    define('PROJECT_ROOT', $isRailway ? rtrim($_SERVER['DOCUMENT_ROOT'], '/') : __DIR__);
-}
-if (!defined('BASE_PATH')) {
-    define('BASE_PATH', PROJECT_ROOT);
-}
-if (!defined('SITE_URL')) {
-    define('SITE_URL', $isRailway ? 'https://' . $_SERVER['HTTP_HOST'] : 'http://localhost');
-}
+// Definir rutas base
+define('PROJECT_ROOT', __DIR__);
 
-// Log de rutas
-error_log("=== RUTAS DEL SISTEMA ===");
-error_log("PROJECT_ROOT: " . PROJECT_ROOT);
-error_log("BASE_PATH: " . BASE_PATH);
-error_log("SITE_URL: " . SITE_URL);
-
-// Configuración de la base de datos según el entorno
+// Configuración para Railway
 if ($isRailway) {
-    // Entorno de producción en Railway
-    $db_host = getenv('MYSQLHOST');
-    $db_user = getenv('MYSQLUSER');
-    $db_pass = getenv('MYSQLPASSWORD');
-    $db_name = getenv('MYSQLDATABASE');
-    $db_port = getenv('MYSQLPORT');
-
-    // Validar variables de entorno
-    if (empty($db_host) || empty($db_user) || empty($db_pass) || empty($db_name) || empty($db_port)) {
-        error_log("ERROR: Faltan variables de entorno de la base de datos en Railway");
-        die('Error Crítico de Configuración: Faltan variables de entorno de la base de datos en Railway');
-    }
-} else {
-    // Entorno de desarrollo local
-    $db_host = 'localhost';
-    $db_user = 'root';
-    $db_pass = '';
-    $db_name = 'cotizador_ascensores';
-    $db_port = 3306;
+    define('DB_HOST', $_ENV['MYSQLHOST']);
+    define('DB_USER', $_ENV['MYSQLUSER']);
+    define('DB_PASS', $_ENV['MYSQLPASSWORD']);
+    define('DB_NAME', $_ENV['MYSQLDATABASE']);
+    define('DB_PORT', $_ENV['MYSQLPORT']);
+} 
+// Configuración para el entorno local
+else {
+    define('DB_HOST', 'localhost');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
+    define('DB_NAME', 'company_presupuestos');
+    define('DB_PORT', 3306);
 }
-
-// Definir constantes de base de datos
-define('DB_HOST', $db_host);
-define('DB_USER', $db_user);
-define('DB_PASS', $db_pass);
-define('DB_NAME', $db_name);
-define('DB_PORT', $db_port);
 
 // ========================================
 // FUNCIÓN DE CONEXIÓN PDO
@@ -220,6 +180,8 @@ if (ENVIRONMENT === 'railway') {
 // CONSTANTES ADICIONALES
 // ========================================
 
+define('DEBUG_MODE', !$isRailway);
+
 define('APP_NAME', 'Cotizador Company');
 define('APP_VERSION', '2.0.0');
 define('CURRENCY', 'ARS');
@@ -248,11 +210,10 @@ foreach ($dirs as $dir) {
 // URL base de la aplicación (útil para generar enlaces absolutos)
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
 $host = $_SERVER['HTTP_HOST'];
-define('BASE_URL', $protocol . $host);
+define('BASE_URL', $isRailway ? 'https://' . ($_SERVER['HTTP_HOST'] ?? '') : 'http://localhost/company-presupuestos-online-2');
 error_log("BASE_URL definida como: " . BASE_URL);
 
 // Configuración de errores y depuración
-define('DEBUG_MODE', !$isRailway);
 if (DEBUG_MODE) {
     error_log("Modo DEBUG activado");
     ini_set('display_errors', 1);

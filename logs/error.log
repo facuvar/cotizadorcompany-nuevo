@@ -471,3 +471,18 @@
 [26-Jun-2025 09:49:48 America/Argentina/Buenos_Aires] REQUEST_URI: /company-presupuestos-online-2/admin/index.php
 [26-Jun-2025 09:49:48 America/Argentina/Buenos_Aires] DOCUMENT_ROOT: C:/xampp/htdocs
 [26-Jun-2025 09:49:48 America/Argentina/Buenos_Aires] Admin: Se encontraron 9 presupuestos
+[29-Jul-2025 15:38:31 America/Argentina/Buenos_Aires] === DIAGNÓSTICO DE RUTAS ADMIN (POST-CONFIG) ===
+[29-Jul-2025 15:38:31 America/Argentina/Buenos_Aires] ADMIN_BASE_PATH: C:/xampp/htdocs/company-presupuestos-online-2
+[29-Jul-2025 15:38:31 America/Argentina/Buenos_Aires] INCLUDES_PATH: C:/xampp/htdocs/company-presupuestos-online-2/sistema/includes
+[29-Jul-2025 15:38:31 America/Argentina/Buenos_Aires] ASSETS_PATH: /assets
+[29-Jul-2025 15:38:31 America/Argentina/Buenos_Aires] Base URL: http://localhost
+[29-Jul-2025 15:38:31 America/Argentina/Buenos_Aires] REQUEST_URI: /company-presupuestos-online-2/admin/
+[29-Jul-2025 15:38:31 America/Argentina/Buenos_Aires] DOCUMENT_ROOT: C:/xampp/htdocs
+[29-Jul-2025 15:38:36 America/Argentina/Buenos_Aires] === DIAGNÓSTICO DE RUTAS ADMIN (POST-CONFIG) ===
+[29-Jul-2025 15:38:36 America/Argentina/Buenos_Aires] ADMIN_BASE_PATH: C:/xampp/htdocs/company-presupuestos-online-2
+[29-Jul-2025 15:38:36 America/Argentina/Buenos_Aires] INCLUDES_PATH: C:/xampp/htdocs/company-presupuestos-online-2/sistema/includes
+[29-Jul-2025 15:38:36 America/Argentina/Buenos_Aires] ASSETS_PATH: /assets
+[29-Jul-2025 15:38:36 America/Argentina/Buenos_Aires] Base URL: http://localhost
+[29-Jul-2025 15:38:36 America/Argentina/Buenos_Aires] REQUEST_URI: /company-presupuestos-online-2/admin/
+[29-Jul-2025 15:38:36 America/Argentina/Buenos_Aires] DOCUMENT_ROOT: C:/xampp/htdocs
+[29-Jul-2025 15:38:36 America/Argentina/Buenos_Aires] Admin: Se encontraron 8 presupuestos
