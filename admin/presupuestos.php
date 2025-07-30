@@ -451,10 +451,6 @@ $stats = [
                     </div>
                     
                     <div class="header-actions" style="display: flex; gap: var(--spacing-md);">
-                        <button class="btn btn-secondary" onclick="exportarPresupuestos()">
-                            <span id="export-icon"></span>
-                            Exportar
-                        </button>
                         <a href="../cotizador.php" class="btn btn-primary" target="_blank">
                             <span id="new-icon"></span>
                             Nuevo Presupuesto
@@ -676,7 +672,6 @@ $stats = [
             document.getElementById('nav-logout-icon').innerHTML = modernUI.getIcon('logout');
             
             // Header
-            document.getElementById('export-icon').innerHTML = modernUI.getIcon('download');
             document.getElementById('new-icon').innerHTML = modernUI.getIcon('add');
             
             // Stats

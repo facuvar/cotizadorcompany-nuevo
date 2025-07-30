@@ -960,10 +960,6 @@ if (isset($_GET['error'])) {
                     </div>
                     
                     <div class="header-actions" style="display: flex; gap: var(--spacing-md);">
-                        <button class="btn btn-secondary" onclick="exportarDatos()">
-                            <span id="export-icon"></span>
-                            Exportar
-                        </button>
                         <button class="btn btn-primary" onclick="mostrarModalAgregar()">
                             <span id="add-icon"></span>
                             Agregar Opción
@@ -1453,7 +1449,6 @@ if (isset($_GET['error'])) {
             document.getElementById('nav-logout-icon').innerHTML = modernUI.getIcon('logout');
             
             // Header
-            document.getElementById('export-icon').innerHTML = modernUI.getIcon('download');
             document.getElementById('add-icon').innerHTML = modernUI.getIcon('add');
             
             // Alerts
