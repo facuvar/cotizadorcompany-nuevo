@@ -1679,12 +1679,12 @@
                 
                 // Definir grupos mutuamente excluyentes
                 const gruposExcluyentes = [
-                    // Grupo 1: Puertas de Ascensores Electromecanicos
+                    // Grupo 1: Puertas de Ascensores Electromecanicos/Gearless
                     [
-                        'ascensores electromecanicos adicional puertas de 900',
-                        'ascensores electromecanicos adicional puertas de 1000', 
-                        'ascensores electromecanicos adicional puertas de 1300',
-                        'ascensores electromecanicos adicional puertas de 1800'
+                        'electromecanicos / gearless adicional puertas de 900',
+                        'electromecanicos / gearless adicional puertas de 1000', 
+                        'electromecanicos / gearless adicional puertas de 1300',
+                        'electromecanicos / gearless adicional puertas de 1800'
                     ],
                     // Grupo 2: Puertas de Ascensores Hidraulicos
                     [
@@ -1693,16 +1693,16 @@
                         'ascensores hidraulicos adicional puertas de 1200', 
                         'ascensores hidraulicos adicional puertas de 1800'
                     ],
-                    // Grupo 3: Indicadores de Ascensores Electromecanicos
+                    // Grupo 3: Indicadores de Ascensores Electromecanicos/Gearless
                     [
-                        'ascensores electromecanicos adicional indicador led alfa num 1, 2',
-                        'ascensores electromecanicos adicional indicador led alfa num 0, 8',
-                        'ascensores electromecanicos adicional indicador lcd color 5'
+                        'electromecanicos / gearless adicional indicador led alfa num 1, 2',
+                        'electromecanicos / gearless adicional indicador led alfa num 0, 8',
+                        'electromecanicos / gearless adicional indicador lcd color 5'
                     ],
-                    // Grupo 4: Capacidad de Carga de Ascensores Electromecanicos
+                    // Grupo 4: Capacidad de Carga de Ascensores Electromecanicos/Gearless
                     [
-                        'electromecanicos adicional 750kg',
-                        'electromecanicos adicional 1000kg'
+                        'electromecanicos / gearless adicional 750kg',
+                        'electromecanicos / gearless adicional 1000kg'
                     ],
                     // Grupo 5: Capacidad de Carga Ascensores Hidraulicos
                     [
