@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cotizador de Ascensores - Nueva Paleta de Colores</title>
+    <title>Cotizador de Ascensores - Versión con Tabs</title>
     <link rel="stylesheet" href="assets/css/modern-dark-theme.css">
     <style>
         /* Nueva paleta de colores */
@@ -609,6 +609,28 @@
                 top: 0;
                 max-height: none;
             }
+            
+            /* Tabs responsive */
+            .ascensores-tabs {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .ascensores-tab {
+                font-size: var(--text-2xs);
+                padding: var(--spacing-xs);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .ascensores-tabs {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: var(--spacing-2xs);
+            }
+            
+            .ascensores-tab {
+                font-size: 10px;
+                padding: var(--spacing-2xs) var(--spacing-xs);
+            }
         }
 
         /* Loading skeleton */
@@ -633,6 +655,83 @@
         @keyframes skeleton-loading {
             0% { transform: translateX(-100%); }
             100% { transform: translateX(100%); }
+        }
+
+        /* NUEVOS ESTILOS PARA TABS DE ASCENSORES */
+        .ascensores-tabs-container {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .ascensores-tabs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-lg);
+            background: var(--bg-secondary);
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .ascensores-tab {
+            background: transparent;
+            border: 2px solid transparent;
+            padding: var(--spacing-sm) var(--spacing-md);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            font-size: var(--text-xs);
+            font-weight: 500;
+            color: var(--color-white);
+            text-align: center;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .ascensores-tab:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .ascensores-tab.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            opacity: 1;
+            color: white;
+            font-weight: 600;
+        }
+
+        .ascensores-tab-content {
+            display: none;
+        }
+
+        .ascensores-tab-content.active {
+            display: block;
+        }
+
+        .ascensores-tab-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--color-dark-gray);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .ascensores-tab-title {
+            font-size: var(--text-base);
+            font-weight: 600;
+            color: var(--color-white);
+        }
+
+        .ascensores-tab-count {
+            font-size: var(--text-sm);
+            color: var(--color-white);
+            opacity: 0.8;
+            background: var(--accent-primary);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
         }
     </style>
 </head>
@@ -812,6 +911,58 @@
         let selectedOptions = [];
         let currentDelivery = '90';
 
+        // NUEVA FUNCIONALIDAD: Definición de categorías de ascensores con tabs
+        const ascensoresTabs = [
+            {
+                id: 'electromecanicos',
+                nombre: 'Equipos Electromecanicos',
+                keywords: ['electromecanico'],
+                excludeKeywords: ['gearless']
+            },
+            {
+                id: 'gearless',
+                nombre: 'Opción Gearless', 
+                keywords: ['gearless']
+            },
+            {
+                id: 'hidraulicos',
+                nombre: 'Equipos Hidraulicos',
+                keywords: ['hidraulico']
+            },
+            {
+                id: 'domiciliarios',
+                nombre: 'Equipos Domiciliarios',
+                keywords: ['domiciliario']
+            },
+            {
+                id: 'montavehiculos',
+                nombre: 'Montavehiculos y Giracoches',
+                keywords: ['giracoches', 'montavehiculo', 'monta vehiculo']
+            },
+            {
+                id: 'montacargas',
+                nombre: 'Montacargas',
+                keywords: ['montacargas']
+            },
+            {
+                id: 'salvaescaleras',
+                nombre: 'Salvaescaleras',
+                keywords: ['salvaescaleras', 'salva escaleras']
+            },
+            {
+                id: 'montaplatos',
+                nombre: 'Montaplatos',
+                keywords: ['montaplatos', 'monta platos']
+            },
+            {
+                id: 'escaleras',
+                nombre: 'Escaleras Mecánicas',
+                keywords: ['escaleras mecánicas', 'escalera mecánica', 'escaleras mecanicas']
+            }
+        ];
+
+        let currentAscensorTab = 'electromecanicos';
+
         // Cargar iconos
         document.addEventListener('DOMContentLoaded', function() {
             // Cargar iconos SVG (removido logo-icon ya que ahora usamos imagen)
@@ -969,6 +1120,72 @@
             });
         }
 
+        // NUEVA FUNCIONALIDAD: Clasificar ascensores en tabs
+        function clasificarAscensores(ascensores) {
+            const clasificados = {};
+            
+            // Inicializar todas las categorías
+            ascensoresTabs.forEach(tab => {
+                clasificados[tab.id] = [];
+            });
+            
+            ascensores.forEach(ascensor => {
+                const nombre = ascensor.nombre.toLowerCase();
+                let clasificado = false;
+                
+                // Buscar en qué categoría pertenece
+                for (let tab of ascensoresTabs) {
+                    // Verificar palabras clave
+                    const tieneKeyword = tab.keywords.some(keyword => nombre.includes(keyword.toLowerCase()));
+                    
+                    // Verificar palabras excluidas (para electromecanicos sin gearless)
+                    const tieneExcluida = tab.excludeKeywords && 
+                        tab.excludeKeywords.some(exclude => nombre.includes(exclude.toLowerCase()));
+                    
+                    if (tieneKeyword && !tieneExcluida) {
+                        clasificados[tab.id].push(ascensor);
+                        clasificado = true;
+                        break;
+                    }
+                }
+                
+                // Si no se clasificó, agregar a "otros" (se pueden revisar manualmente)
+                if (!clasificado) {
+                    console.warn('Ascensor no clasificado:', ascensor.nombre);
+                    // Por defecto agregarlo a electromecanicos
+                    if (nombre.includes('estructura') || nombre.includes('perfil')) {
+                        clasificados['electromecanicos'].push(ascensor);
+                    }
+                }
+            });
+            
+            return clasificados;
+        }
+
+        // NUEVA FUNCIONALIDAD: Cambiar tab activo
+        function cambiarTabAscensor(tabId) {
+            // Actualizar variable global
+            currentAscensorTab = tabId;
+            
+            // Actualizar UI de tabs
+            document.querySelectorAll('.ascensores-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.ascensores-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Activar tab seleccionado
+            const activeTab = document.querySelector(`[data-tab="${tabId}"]`);
+            const activeContent = document.getElementById(`tab-content-${tabId}`);
+            
+            if (activeTab) activeTab.classList.add('active');
+            if (activeContent) activeContent.classList.add('active');
+            
+            console.log(`Tab cambiado a: ${tabId}`);
+        }
+
         function renderCategorias() {
             const container = document.getElementById('categories-container');
             
@@ -1007,31 +1224,81 @@
                     return opCatId === catId;
                 });
                 
-                // DEPURACIÓN ESPECÍFICA: Solo para ascensores
+                // NUEVA FUNCIONALIDAD: Si es la categoría de ascensores, generar tabs
                 if (categoria.nombre.toLowerCase().includes('ascensor')) {
-                    console.log(`🔍 ASCENSORES - RENDERIZADO:`);
-                    console.log(`   Filtradas: ${categoryOptions.length} de ${opciones.length} totales`);
-                    console.log(`   Categoría ID: ${categoria.id}, Tipo: ${typeof categoria.id}`);
+                    console.log(`🔍 GENERANDO TABS PARA ASCENSORES:`);
+                    console.log(`   Total ascensores: ${categoryOptions.length}`);
                     
-                    // Verificar ascensores en memoria
-                    const ascensoresEnMemoria = opciones.filter(op => parseInt(op.categoria_id) === 1);
-                    console.log(`   En memoria: ${ascensoresEnMemoria.length} ascensores`);
+                    // Clasificar ascensores en tabs
+                    const ascensoresClasificados = clasificarAscensores(categoryOptions);
                     
-                    // Mostrar IDs de las opciones filtradas
-                    const idsFilterados = categoryOptions.map(op => op.id).sort((a, b) => a - b);
-                    console.log(`   IDs filtrados: ${idsFilterados.join(', ')}`);
+                    // Generar HTML con tabs
+                    const tabsHTML = ascensoresTabs.map(tab => {
+                        const count = ascensoresClasificados[tab.id].length;
+                        return `
+                            <div class="ascensores-tab ${tab.id === 'electromecanicos' ? 'active' : ''}" 
+                                 data-tab="${tab.id}" 
+                                 onclick="cambiarTabAscensor('${tab.id}')">
+                                ${tab.nombre}
+                                <br><small>(${count})</small>
+                            </div>
+                        `;
+                    }).join('');
                     
-                    // Verificar si faltan IDs específicos
-                    const idsEnMemoria = ascensoresEnMemoria.map(op => op.id).sort((a, b) => a - b);
-                    const idsFaltantes = idsEnMemoria.filter(id => !idsFilterados.includes(id));
-                    if (idsFaltantes.length > 0) {
-                        console.log(`   ⚠️ IDs FALTANTES: ${idsFaltantes.join(', ')}`);
-                    }
+                    const contentHTML = ascensoresTabs.map(tab => {
+                        const ascensoresDelTab = ascensoresClasificados[tab.id];
+                        const optionsHTML = ascensoresDelTab.map(opcion => `
+                            <div class="option-item" data-categoria-id="${categoria.id}" onclick="handleOptionClick(${opcion.id})">
+                                <div class="option-checkbox" data-option-id="${opcion.id}">
+                                    <input type="checkbox" data-option-id="${opcion.id}" onclick="event.stopPropagation(); handleOptionClick(${opcion.id});">
+                                </div>
+                                <div class="option-details">
+                                    <div class="option-name">${opcion.nombre}</div>
+                                    <div class="option-price" id="price-${opcion.id}">
+                                        ${getOptionPrice(opcion)}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                        
+                        return `
+                            <div class="ascensores-tab-content ${tab.id === 'electromecanicos' ? 'active' : ''}" 
+                                 id="tab-content-${tab.id}">
+                                <div class="ascensores-tab-header">
+                                    <div class="ascensores-tab-title">${tab.nombre}</div>
+                                    <div class="ascensores-tab-count">${ascensoresDelTab.length} opciones</div>
+                                </div>
+                                ${optionsHTML}
+                            </div>
+                        `;
+                    }).join('');
                     
-                    // NUEVO: Verificar antes del mapeo
-                    console.log(`🔧 ANTES DEL MAPEO:`);
-                    console.log(`   Opciones a mapear: ${categoryOptions.length}`);
-                    console.log(`   Primer ID: ${categoryOptions[0]?.id}, Último ID: ${categoryOptions[categoryOptions.length - 1]?.id}`);
+                    return `
+                        <div class="category-card" id="category-${categoria.id}">
+                            <div class="category-header" data-category-id="${categoria.id}" onclick="handleCategoryClick(${categoria.id})">
+                                <div class="category-info">
+                                    <div class="category-icon">
+                                        ${modernUI.getIcon('building')}
+                                    </div>
+                                    <div class="category-details">
+                                        <div class="category-title">${categoria.nombre}</div>
+                                        <div class="category-count">${categoryOptions.length} opciones en ${ascensoresTabs.length} categorías</div>
+                                    </div>
+                                </div>
+                                <div class="expand-icon">
+                                    ${modernUI.getIcon('chevron-down')}
+                                </div>
+                            </div>
+                            <div class="category-options">
+                                <div class="ascensores-tabs-container">
+                                    <div class="ascensores-tabs">
+                                        ${tabsHTML}
+                                    </div>
+                                    ${contentHTML}
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 }
                 
                 // Mapear iconos según el nombre de la categoría
@@ -1043,6 +1310,21 @@
                 } else if (categoria.nombre.toLowerCase().includes('descuento')) {
                     iconName = 'tag';
                 }
+                
+                // Para otras categorías (no ascensores), mantener el comportamiento original
+                const htmlOptions = categoryOptions.map(opcion => `
+                    <div class="option-item" data-categoria-id="${categoria.id}" onclick="handleOptionClick(${opcion.id})">
+                        <div class="option-checkbox" data-option-id="${opcion.id}">
+                            <input type="checkbox" data-option-id="${opcion.id}" onclick="event.stopPropagation(); handleOptionClick(${opcion.id});">
+                        </div>
+                        <div class="option-details">
+                            <div class="option-name">${opcion.nombre}</div>
+                            <div class="option-price" id="price-${opcion.id}">
+                                ${getOptionPrice(opcion)}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
                 
                 return `
                     <div class="category-card" id="category-${categoria.id}">
@@ -1061,34 +1343,7 @@
                             </div>
                         </div>
                         <div class="category-options">
-                            ${(() => {
-                                // DEPURACIÓN: Log antes del mapeo para ascensores
-                                if (categoria.nombre.toLowerCase().includes('ascensor')) {
-                                    console.log(`🔧 MAPEANDO ${categoryOptions.length} opciones de ascensores...`);
-                                }
-                                
-                                const htmlOptions = categoryOptions.map(opcion => `
-                                    <div class="option-item" data-categoria-id="${categoria.id}" onclick="handleOptionClick(${opcion.id})">
-                                        <div class="option-checkbox" data-option-id="${opcion.id}">
-                                            <input type="checkbox" data-option-id="${opcion.id}" onclick="event.stopPropagation(); handleOptionClick(${opcion.id});">
-                                        </div>
-                                        <div class="option-details">
-                                            <div class="option-name">${opcion.nombre}</div>
-                                            <div class="option-price" id="price-${opcion.id}">
-                                                ${getOptionPrice(opcion)}
-                                            </div>
-                                        </div>
-                                    </div>
-                                `);
-                                
-                                // DEPURACIÓN: Log después del mapeo para ascensores
-                                if (categoria.nombre.toLowerCase().includes('ascensor')) {
-                                    console.log(`🔧 HTML generado para ${htmlOptions.length} opciones`);
-                                    console.log(`🔧 Longitud del HTML: ${htmlOptions.join('').length} caracteres`);
-                                }
-                                
-                                return htmlOptions.join('');
-                            })()}
+                            ${htmlOptions}
                         </div>
                     </div>
                 `;
@@ -1513,7 +1768,7 @@
             console.log('Opciones seleccionadas después del cambio:', selectedOptions);
         }
 
-        // NUEVA FUNCIÓN: Filtrar adicionales basado en la selección de ascensores
+        // NUEVA VERSION: Filtrar adicionales usando campos de compatibilidad de la base de datos
         function filtrarAdicionales() {
             // Buscar si hay un ascensor seleccionado
             const ascensorSeleccionado = selectedOptions.find(id => {
@@ -1538,95 +1793,134 @@
             
             console.log('Total adicionales disponibles:', todasLasOpcionesAdicionales.length);
             
-            // Si hay un ascensor seleccionado, filtrar adicionales
-            let adicionalesFiltrados = todasLasOpcionesAdicionales;
+            // Si hay un ascensor seleccionado, filtrar adicionales usando campos de compatibilidad
+            let adicionalesFiltrados = [];
+            let mensajeInfo = '';
             
             if (ascensorSeleccionado) {
                 const opcionAscensor = opciones.find(op => op.id == ascensorSeleccionado);
                 console.log('Ascensor seleccionado:', opcionAscensor?.nombre);
                 
-                // NUEVA REGLA: Si se selecciona giracoches o montaplatos, NO mostrar adicionales
-                if (opcionAscensor && 
-                    (opcionAscensor.nombre.toLowerCase().includes('giracoches') || 
-                     opcionAscensor.nombre.toLowerCase().includes('montaplatos'))) {
+                const nombreAscensor = opcionAscensor.nombre.toLowerCase();
+                
+                // Determinar qué tipo de ascensor es usando el sistema de clasificación de tabs
+                let campoCompatibilidad = '';
+                let tipoAscensor = '';
+                
+                // Detectar tipo usando las mismas reglas que la clasificación de tabs
+                for (let tab of ascensoresTabs) {
+                    const tieneKeyword = tab.keywords.some(keyword => nombreAscensor.includes(keyword.toLowerCase()));
+                    const tieneExcluida = tab.excludeKeywords && 
+                        tab.excludeKeywords.some(exclude => nombreAscensor.includes(exclude.toLowerCase()));
                     
-                    adicionalesFiltrados = [];
-                    console.log('Giracoches o Montaplatos seleccionado: NO se muestran adicionales');
-                    
-                    // Deseleccionar automáticamente cualquier adicional que esté seleccionado
-                    const adicionalesSeleccionados = selectedOptions.filter(id => {
-                        const opcion = opciones.find(op => op.id == id);
-                        return opcion && parseInt(opcion.categoria_id) === parseInt(categoriaAdicionales.id);
-                    });
-                    
-                    adicionalesSeleccionados.forEach(id => {
-                        removeSelectedOption(id);
-                        // Actualizar visualmente el checkbox
-                        const checkbox = document.querySelector(`[data-option-id="${id}"].option-checkbox`);
-                        if (checkbox) {
-                            const input = checkbox.querySelector('input');
-                            if (input) {
-                                input.checked = false;
-                                checkbox.classList.remove('checked');
-                            }
-                        }
-                    });
-                    
-                    if (adicionalesSeleccionados.length > 0) {
-                        console.log(`Deseleccionados ${adicionalesSeleccionados.length} adicionales automáticamente`);
-                        updateTotals();
-                        updateSelectedItems();
+                    if (tieneKeyword && !tieneExcluida) {
+                        tipoAscensor = tab.id;
+                        campoCompatibilidad = `compatible_${tab.id}`;
+                        break;
                     }
                 }
-                // Si se selecciona electromecánico O gearless, mostrar solo adicionales con "electromecanico"
-                else if (opcionAscensor && 
-                    (opcionAscensor.nombre.toLowerCase().includes('electromecanico') || 
-                     opcionAscensor.nombre.toLowerCase().includes('gearless'))) {
-                    
-                    adicionalesFiltrados = todasLasOpcionesAdicionales.filter(adicional =>
-                        adicional.nombre.toLowerCase().includes('electromecanico')
-                    );
-                    
-                    console.log('Filtrando adicionales para electromecanico/gearless:', adicionalesFiltrados.length);
+                
+                // Si no se clasificó, usar electromecanicos como default para estructura/perfil
+                if (!tipoAscensor) {
+                    if (nombreAscensor.includes('estructura') || nombreAscensor.includes('perfil')) {
+                        tipoAscensor = 'electromecanicos';
+                        campoCompatibilidad = 'compatible_electromecanicos';
+                    }
                 }
-                // Si se selecciona hidráulico, mostrar solo adicionales con "hidraulico"
-                else if (opcionAscensor && 
-                         opcionAscensor.nombre.toLowerCase().includes('hidraulico')) {
+                
+                console.log(`Tipo detectado: ${tipoAscensor}, campo: ${campoCompatibilidad}`);
+                
+                // Filtrar adicionales basándose en el campo de compatibilidad
+                if (campoCompatibilidad) {
+                    adicionalesFiltrados = todasLasOpcionesAdicionales.filter(adicional => {
+                        // NUEVA LÓGICA: Si el campo de compatibilidad existe en el objeto, usarlo
+                        if (adicional.hasOwnProperty(campoCompatibilidad)) {
+                            return adicional[campoCompatibilidad] == 1;
+                        }
+                        
+                        // FALLBACK: Si no existe el campo (base local sin migrar), usar keywords
+                        const nombreAdicional = adicional.nombre.toLowerCase();
+                        
+                        // Lógica de fallback por keywords
+                        if (tipoAscensor === 'electromecanicos') {
+                            return nombreAdicional.includes('electromecanico') || 
+                                   nombreAdicional.includes('electromecanicos') ||
+                                   (!nombreAdicional.includes('hidraulico') && !nombreAdicional.includes('montacargas') && !nombreAdicional.includes('salvaescaleras'));
+                        } else if (tipoAscensor === 'gearless') {
+                            return nombreAdicional.includes('electromecanico') || 
+                                   nombreAdicional.includes('electromecanicos') ||
+                                   (!nombreAdicional.includes('hidraulico') && !nombreAdicional.includes('montacargas') && !nombreAdicional.includes('salvaescaleras'));
+                        } else if (tipoAscensor === 'hidraulicos') {
+                            return nombreAdicional.includes('hidraulico') || nombreAdicional.includes('hidraulicos');
+                        } else if (tipoAscensor === 'montacargas') {
+                            return nombreAdicional.includes('montacargas');
+                        } else if (tipoAscensor === 'salvaescaleras') {
+                            return nombreAdicional.includes('salvaescaleras');
+                        }
+                        
+                        // Para otros tipos, mostrar todos los adicionales que no tienen especificación
+                        return !nombreAdicional.includes('electromecanico') && 
+                               !nombreAdicional.includes('hidraulico') && 
+                               !nombreAdicional.includes('montacargas') && 
+                               !nombreAdicional.includes('salvaescaleras');
+                    });
                     
-                    adicionalesFiltrados = todasLasOpcionesAdicionales.filter(adicional =>
-                        adicional.nombre.toLowerCase().includes('hidraulico')
-                    );
-                    
-                    console.log('Filtrando adicionales para hidraulico:', adicionalesFiltrados.length);
+                    // Mensajes informativos
+                    const tabInfo = ascensoresTabs.find(tab => tab.id === tipoAscensor);
+                    if (tabInfo) {
+                        if (adicionalesFiltrados.length === 0) {
+                            mensajeInfo = `Los ${tabInfo.nombre.toLowerCase()} no tienen adicionales disponibles.`;
+                        } else {
+                            mensajeInfo = `Mostrando ${adicionalesFiltrados.length} adicionales compatibles con ${tabInfo.nombre.toLowerCase()}.`;
+                        }
+                    }
+                } else {
+                    adicionalesFiltrados = [];
+                    mensajeInfo = 'Tipo de ascensor no reconocido. No se pueden mostrar adicionales.';
                 }
-                // Si se selecciona montacargas, mostrar solo adicionales con "montacargas"
-                else if (opcionAscensor && 
-                         opcionAscensor.nombre.toLowerCase().includes('montacargas')) {
-                    
-                    adicionalesFiltrados = todasLasOpcionesAdicionales.filter(adicional =>
-                        adicional.nombre.toLowerCase().includes('montacargas')
-                    );
-                    
-                    console.log('Filtrando adicionales para montacargas:', adicionalesFiltrados.length);
+                
+                console.log(`Adicionales filtrados: ${adicionalesFiltrados.length}`);
+                
+                // Deseleccionar adicionales que ya no son válidos
+                const adicionalesSeleccionados = selectedOptions.filter(id => {
+                    const opcion = opciones.find(op => op.id == id);
+                    return opcion && parseInt(opcion.categoria_id) === parseInt(categoriaAdicionales.id);
+                });
+                
+                const adicionalesADeseleccionar = adicionalesSeleccionados.filter(id => {
+                    return !adicionalesFiltrados.some(adicional => adicional.id == id);
+                });
+                
+                adicionalesADeseleccionar.forEach(id => {
+                    removeSelectedOption(id);
+                    // Actualizar visualmente el checkbox
+                    const checkbox = document.querySelector(`[data-option-id="${id}"].option-checkbox`);
+                    if (checkbox) {
+                        const input = checkbox.querySelector('input');
+                        if (input) {
+                            input.checked = false;
+                            checkbox.classList.remove('checked');
+                        }
+                    }
+                });
+                
+                if (adicionalesADeseleccionar.length > 0) {
+                    console.log(`Deseleccionados ${adicionalesADeseleccionar.length} adicionales incompatibles`);
+                    updateTotals();
+                    updateSelectedItems();
                 }
-                // Si se selecciona salvaescaleras, mostrar solo adicionales con "salvaescaleras"
-                else if (opcionAscensor && 
-                         opcionAscensor.nombre.toLowerCase().includes('salvaescaleras')) {
-                    
-                    adicionalesFiltrados = todasLasOpcionesAdicionales.filter(adicional =>
-                        adicional.nombre.toLowerCase().includes('salvaescaleras')
-                    );
-                    
-                    console.log('Filtrando adicionales para salvaescaleras:', adicionalesFiltrados.length);
-                }
+            } else {
+                // Si no hay ascensor seleccionado, no mostrar adicionales
+                adicionalesFiltrados = [];
+                mensajeInfo = 'Selecciona primero un ascensor para ver los adicionales disponibles.';
             }
             
             // Actualizar la visualización de la categoría de adicionales
-            actualizarVisualizacionAdicionales(categoriaAdicionales, adicionalesFiltrados);
+            actualizarVisualizacionAdicionales(categoriaAdicionales, adicionalesFiltrados, mensajeInfo);
         }
         
-        // NUEVA FUNCIÓN: Actualizar la visualización de adicionales filtrados
-        function actualizarVisualizacionAdicionales(categoria, adicionalesFiltrados) {
+        // MEJORADA: Actualizar la visualización de adicionales filtrados con mensaje personalizado
+        function actualizarVisualizacionAdicionales(categoria, adicionalesFiltrados, mensajeInfo = '') {
             const categoryCard = document.getElementById(`category-${categoria.id}`);
             if (!categoryCard) {
                 console.log('No se encontró la tarjeta de categoría de adicionales');
@@ -1647,16 +1941,30 @@
             const categoryOptions = categoryCard.querySelector('.category-options');
             if (categoryOptions) {
                 if (adicionalesFiltrados.length === 0) {
-                    // Mostrar mensaje cuando no hay adicionales disponibles
+                    // Mostrar mensaje personalizado cuando no hay adicionales disponibles
+                    const mensaje = mensajeInfo || 'No hay adicionales disponibles para este tipo de ascensor.';
                     categoryOptions.innerHTML = `
                         <div style="padding: var(--spacing-lg); text-align: center; color: var(--text-muted);">
-                            <div style="margin-bottom: var(--spacing-sm);">
+                            <div style="margin-bottom: var(--spacing-sm); font-size: 2rem; opacity: 0.5;">
                                 ${modernUI.getIcon('info-circle')}
                             </div>
-                            <p>Los giracoches y montaplatos no requieren adicionales.</p>
+                            <p style="margin: 0; color: var(--color-white); opacity: 0.8;">${mensaje}</p>
                         </div>
                     `;
                 } else {
+                    // Agregar mensaje informativo si existe
+                    let mensajeHTML = '';
+                    if (mensajeInfo) {
+                        mensajeHTML = `
+                            <div style="padding: var(--spacing-md); background: rgba(255, 255, 255, 0.1); border-radius: var(--radius-md); margin-bottom: var(--spacing-md); border-left: 4px solid var(--accent-primary);">
+                                <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                                    <span style="color: var(--accent-primary);">${modernUI.getIcon('info-circle')}</span>
+                                    <span style="color: var(--color-white); font-size: var(--text-sm);">${mensajeInfo}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
                     // Mostrar opciones normalmente
                     const htmlOptions = adicionalesFiltrados.map(opcion => `
                         <div class="option-item" data-categoria-id="${categoria.id}" onclick="handleOptionClick(${opcion.id})">
@@ -1672,7 +1980,7 @@
                         </div>
                     `);
                     
-                    categoryOptions.innerHTML = htmlOptions.join('');
+                    categoryOptions.innerHTML = mensajeHTML + htmlOptions.join('');
                     
                     // Actualizar el estado visual de los checkboxes seleccionados
                     adicionalesFiltrados.forEach(opcion => {
