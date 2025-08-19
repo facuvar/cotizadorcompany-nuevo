@@ -31,8 +31,8 @@ class EmailHandler {
             // Cargar configuración
             $config = include __DIR__ . '/email_config.php';
             
-            // Email de destino (donde llegan las notificaciones)
-            $to_email = $config['notification_email'];
+            // Emails de destino (donde llegan las notificaciones) - soporta múltiples emails separados por coma
+            $notification_emails = $config['notification_email'];
             
             // Crear el contenido del correo
             $subject = "Nuevo Presupuesto Generado - " . $presupuesto_data['numero_presupuesto'];
@@ -40,8 +40,8 @@ class EmailHandler {
             $html_content = $this->crearHTMLNotificacion($presupuesto_data);
             $text_content = $this->crearTextoNotificacion($presupuesto_data);
             
-            // Enviar el correo
-            return $this->enviarCorreo($to_email, 'Facundo', $subject, $html_content, $text_content);
+            // Enviar el correo a múltiples destinatarios
+            return $this->enviarCorreoMultiple($notification_emails, $subject, $html_content, $text_content);
             
         } catch (Exception $e) {
             error_log('Error enviando correo: ' . $e->getMessage());
@@ -151,6 +151,48 @@ class EmailHandler {
         $texto .= "Este correo fue generado automáticamente por el Sistema de Presupuestos Company.";
         
         return $texto;
+    }
+    
+    /**
+     * Enviar correo a múltiples destinatarios
+     */
+    private function enviarCorreoMultiple($emails_string, $subject, $html_content, $text_content) {
+        // Separar emails por coma y limpiar espacios
+        $emails = array_map('trim', explode(',', $emails_string));
+        
+        $success_count = 0;
+        $total_emails = count($emails);
+        
+        foreach ($emails as $email) {
+            if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                // Determinar nombre basado en el email
+                $name = $this->getNombreFromEmail($email);
+                
+                if ($this->enviarCorreo($email, $name, $subject, $html_content, $text_content)) {
+                    $success_count++;
+                    error_log("Correo enviado exitosamente a: $email");
+                } else {
+                    error_log("Error enviando correo a: $email");
+                }
+            } else {
+                error_log("Email inválido: $email");
+            }
+        }
+        
+        error_log("Notificación enviada a $success_count de $total_emails destinatarios");
+        return $success_count > 0; // Retorna true si al menos un email se envió
+    }
+    
+    /**
+     * Obtener nombre basado en el email
+     */
+    private function getNombreFromEmail($email) {
+        $names = [
+            'facundo@maberik.com' => 'Facundo',
+            'victoria.tucci@ascensorescompany.com' => 'Victoria Tucci'
+        ];
+        
+        return $names[$email] ?? 'Equipo Company';
     }
     
     /**
