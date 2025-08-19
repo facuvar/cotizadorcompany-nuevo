@@ -1769,11 +1769,12 @@ if (isset($_GET['error'])) {
                         
                         document.getElementById('edit_descuento').value = opcion.descuento || 0;
                         
-                        // NUEVA FUNCIONALIDAD: Cargar datos de compatibilidad
-                        cargarDatosCompatibilidad(opcion);
-                        
-                        // Mostrar/ocultar secciones según categoría
-                        toggleSectionsForCategory(opcion.categoria_id);
+                        // NUEVA FUNCIONALIDAD: Cargar datos de compatibilidad y mostrar secciones
+                        // Usar setTimeout para asegurar que el DOM esté actualizado
+                        setTimeout(() => {
+                            cargarDatosCompatibilidad(opcion);
+                            toggleSectionsForCategory(opcion.categoria_id);
+                        }, 10);
                         
                         // Mostrar modal
                         document.getElementById('modalEditar').classList.add('active');
@@ -1807,13 +1808,19 @@ if (isset($_GET['error'])) {
             const compatibilidadSection = document.getElementById('compatibilidad-section');
             const descuentoSection = document.getElementById('descuento-section');
             
+            console.log('toggleSectionsForCategory llamada con categoriaId:', categoriaId);
+            console.log('compatibilidadSection encontrado:', compatibilidadSection !== null);
+            console.log('descuentoSection encontrado:', descuentoSection !== null);
+            
             // Si es categoría adicionales (ID = 2), mostrar compatibilidad
             if (categoriaId == '2') {
-                compatibilidadSection.style.display = 'block';
-                descuentoSection.style.display = 'none';
+                console.log('Mostrando sección de compatibilidad para adicionales');
+                if (compatibilidadSection) compatibilidadSection.style.display = 'block';
+                if (descuentoSection) descuentoSection.style.display = 'none';
             } else {
-                compatibilidadSection.style.display = 'none';
-                descuentoSection.style.display = 'block';
+                console.log('Mostrando sección de descuento para categoría:', categoriaId);
+                if (compatibilidadSection) compatibilidadSection.style.display = 'none';
+                if (descuentoSection) descuentoSection.style.display = 'block';
             }
         }
 

@@ -1833,7 +1833,36 @@
                 // Filtrar adicionales basándose en el campo de compatibilidad
                 if (campoCompatibilidad) {
                     adicionalesFiltrados = todasLasOpcionesAdicionales.filter(adicional => {
-                        return adicional[campoCompatibilidad] == 1;
+                        // NUEVA LÓGICA: Si el campo de compatibilidad existe en el objeto, usarlo
+                        if (adicional.hasOwnProperty(campoCompatibilidad)) {
+                            return adicional[campoCompatibilidad] == 1;
+                        }
+                        
+                        // FALLBACK: Si no existe el campo (base local sin migrar), usar keywords
+                        const nombreAdicional = adicional.nombre.toLowerCase();
+                        
+                        // Lógica de fallback por keywords
+                        if (tipoAscensor === 'electromecanicos') {
+                            return nombreAdicional.includes('electromecanico') || 
+                                   nombreAdicional.includes('electromecanicos') ||
+                                   (!nombreAdicional.includes('hidraulico') && !nombreAdicional.includes('montacargas') && !nombreAdicional.includes('salvaescaleras'));
+                        } else if (tipoAscensor === 'gearless') {
+                            return nombreAdicional.includes('electromecanico') || 
+                                   nombreAdicional.includes('electromecanicos') ||
+                                   (!nombreAdicional.includes('hidraulico') && !nombreAdicional.includes('montacargas') && !nombreAdicional.includes('salvaescaleras'));
+                        } else if (tipoAscensor === 'hidraulicos') {
+                            return nombreAdicional.includes('hidraulico') || nombreAdicional.includes('hidraulicos');
+                        } else if (tipoAscensor === 'montacargas') {
+                            return nombreAdicional.includes('montacargas');
+                        } else if (tipoAscensor === 'salvaescaleras') {
+                            return nombreAdicional.includes('salvaescaleras');
+                        }
+                        
+                        // Para otros tipos, mostrar todos los adicionales que no tienen especificación
+                        return !nombreAdicional.includes('electromecanico') && 
+                               !nombreAdicional.includes('hidraulico') && 
+                               !nombreAdicional.includes('montacargas') && 
+                               !nombreAdicional.includes('salvaescaleras');
                     });
                     
                     // Mensajes informativos
