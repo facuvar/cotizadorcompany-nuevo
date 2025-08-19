@@ -1706,8 +1706,8 @@
                     ],
                     // Grupo 5: Capacidad de Carga Ascensores Hidraulicos
                     [
-                        'ascensores hidraulicos adicional 750kg central y piston, cabina 2,25m3',
-                        'ascensores hidraulicos adicional 1000kg central y piston, cabina de 2.66m3'
+                        'hidraulicos adicional 750kg central y piston',
+                        'hidraulicos adicional 1000kg central y piston'
                     ]
                 ];
                 
