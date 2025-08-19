@@ -1701,8 +1701,8 @@
                     ],
                     // Grupo 4: Capacidad de Carga de Ascensores Electromecanicos
                     [
-                        'ascensores electromecanicos adicional 750kg maquina - cabina 2,25m3',
-                        'ascensores electromecanicos adicional 1000kg maquina cabina 2,66'
+                        'electromecanicos adicional 750kg',
+                        'electromecanicos adicional 1000kg'
                     ],
                     // Grupo 5: Capacidad de Carga Ascensores Hidraulicos
                     [
@@ -1716,6 +1716,7 @@
                 for (let grupo of gruposExcluyentes) {
                     if (grupo.some(nombreItem => nombreOpcion.includes(nombreItem))) {
                         grupoExcluyente = grupo;
+                        console.log(`🎯 EXCLUSIÓN MUTUA - Opción: "${nombreOpcion}" pertenece al grupo:`, grupo);
                         break;
                     }
                 }
