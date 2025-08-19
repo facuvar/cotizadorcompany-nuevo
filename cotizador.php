@@ -95,11 +95,11 @@
         .main-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: var(--spacing-xl);
+            padding: calc(var(--spacing-xl) * 1.25);
             display: grid;
             grid-template-columns: 1fr 400px;
             gap: var(--spacing-xl);
-            min-height: calc(100vh - 100px);
+            min-height: calc(120vh - 100px);
             background: rgba(45, 38, 46, 0.1);
             backdrop-filter: blur(5px);
             border-radius: var(--radius-lg);
@@ -112,7 +112,7 @@
             border-radius: var(--radius-lg);
             padding: var(--spacing-xl);
             overflow-y: auto;
-            max-height: calc(100vh - 140px);
+            max-height: calc(150vh - 140px);
         }
 
         .content-header {
@@ -139,7 +139,7 @@
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
-            margin-bottom: var(--spacing-lg);
+            margin-bottom: calc(var(--spacing-lg) * 1.5);
             overflow: hidden;
             transition: all 0.3s ease;
         }
@@ -330,7 +330,7 @@
             display: flex;
             flex-direction: column;
             height: fit-content;
-            max-height: calc(100vh - 140px);
+            max-height: calc(150vh - 140px);
             position: sticky;
             top: 100px;
             box-shadow: 0 8px 32px rgba(45, 38, 46, 0.2);
