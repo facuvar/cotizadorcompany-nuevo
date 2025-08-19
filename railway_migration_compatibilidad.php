@@ -9,15 +9,34 @@
  * Esta migración solo agrega funcionalidad, no modifica datos.
  */
 
+// Detectar si se ejecuta desde browser o línea de comandos
+$isBrowser = isset($_SERVER['HTTP_HOST']);
+
+if ($isBrowser) {
+    echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Migración Railway</title>";
+    echo "<style>body{font-family:monospace;background:#1a1a1a;color:#00ff00;padding:20px;margin:0;}";
+    echo ".success{color:#00ff00;} .warning{color:#ffaa00;} .error{color:#ff0000;} .info{color:#00aaff;}";
+    echo "pre{background:#000;padding:15px;border-radius:5px;overflow-x:auto;}</style></head><body>";
+    echo "<h1>🚀 MIGRACIÓN RAILWAY - CAMPOS COMPATIBILIDAD</h1>";
+    echo "<pre>";
+}
+
 echo "=== MIGRACIÓN RAILWAY - CAMPOS COMPATIBILIDAD ===\n";
-echo "Ejecutando en entorno: " . (isset($_ENV['RAILWAY_ENVIRONMENT']) ? 'RAILWAY' : 'LOCAL') . "\n\n";
+echo "Ejecutando en entorno: " . (isset($_ENV['RAILWAY_ENVIRONMENT']) ? 'RAILWAY' : 'LOCAL') . "\n";
+echo "Ejecutado desde: " . ($isBrowser ? 'BROWSER' : 'CLI') . "\n\n";
 
 // Cargar configuración
 require_once 'config.php';
 
 // Verificar que estamos en Railway para esta migración crítica
 if (!isset($_ENV['RAILWAY_ENVIRONMENT'])) {
-    die("❌ STOP: Este script está diseñado específicamente para Railway.\n   Para local usa: admin/agregar_campos_compatibilidad.php\n");
+    $msg = "❌ STOP: Este script está diseñado específicamente para Railway.\n   Para local usa: admin/agregar_campos_compatibilidad.php\n";
+    if ($isBrowser) {
+        echo "</pre><p class='error'>$msg</p></body></html>";
+    } else {
+        echo $msg;
+    }
+    exit(1);
 }
 
 echo "✅ Entorno Railway detectado correctamente\n";
@@ -216,6 +235,18 @@ try {
     
     echo "\n💡 La base de datos debería estar en su estado original.\n";
     echo "   Contacta al desarrollador si persisten problemas.\n\n";
+    
+    if ($isBrowser) {
+        echo "</pre><p class='error'>❌ MIGRACIÓN FALLÓ - Ver detalles arriba</p></body></html>";
+    }
     exit(1);
+}
+
+if ($isBrowser) {
+    echo "</pre><div style='background:#003300;padding:15px;border-radius:5px;margin-top:20px;'>";
+    echo "<h2 class='success'>✅ MIGRACIÓN COMPLETADA</h2>";
+    echo "<p class='info'>La base de datos Railway ha sido actualizada exitosamente.</p>";
+    echo "<p class='warning'>⚠️ Puedes cerrar esta página y probar cotizador-tabs.php</p>";
+    echo "</div></body></html>";
 }
 ?>
