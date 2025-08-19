@@ -223,11 +223,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $precio_270 = $_POST['precio_270_dias'] ?? 0;
                 $descuento = $_POST['descuento'] ?? 0;
                 
+                // NUEVA FUNCIONALIDAD: Obtener campos de compatibilidad
+                $compatible_electromecanicos = isset($_POST['compatible_electromecanicos']) ? 1 : 0;
+                $compatible_gearless = isset($_POST['compatible_gearless']) ? 1 : 0;
+                $compatible_hidraulicos = isset($_POST['compatible_hidraulicos']) ? 1 : 0;
+                $compatible_domiciliarios = isset($_POST['compatible_domiciliarios']) ? 1 : 0;
+                $compatible_montavehiculos = isset($_POST['compatible_montavehiculos']) ? 1 : 0;
+                $compatible_montacargas = isset($_POST['compatible_montacargas']) ? 1 : 0;
+                $compatible_salvaescaleras = isset($_POST['compatible_salvaescaleras']) ? 1 : 0;
+                $compatible_montaplatos = isset($_POST['compatible_montaplatos']) ? 1 : 0;
+                $compatible_escaleras = isset($_POST['compatible_escaleras']) ? 1 : 0;
+                
                 if ($id && $nombre && $categoria_id) {
-                    $stmt = $conn->prepare("UPDATE opciones SET categoria_id=?, nombre=?, precio_90_dias=?, precio_160_dias=?, precio_270_dias=?, descuento=? WHERE id=?");
-                    $stmt->bind_param("isddddi", $categoria_id, $nombre, $precio_90, $precio_160, $precio_270, $descuento, $id);
+                    $sql = "UPDATE opciones SET 
+                            categoria_id=?, nombre=?, precio_90_dias=?, precio_160_dias=?, precio_270_dias=?, descuento=?,
+                            compatible_electromecanicos=?, compatible_gearless=?, compatible_hidraulicos=?, 
+                            compatible_domiciliarios=?, compatible_montavehiculos=?, compatible_montacargas=?,
+                            compatible_salvaescaleras=?, compatible_montaplatos=?, compatible_escaleras=?
+                            WHERE id=?";
+                    
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("isddddiiiiiiiiii", 
+                        $categoria_id, $nombre, $precio_90, $precio_160, $precio_270, $descuento,
+                        $compatible_electromecanicos, $compatible_gearless, $compatible_hidraulicos,
+                        $compatible_domiciliarios, $compatible_montavehiculos, $compatible_montacargas,
+                        $compatible_salvaescaleras, $compatible_montaplatos, $compatible_escaleras,
+                        $id
+                    );
+                    
                     if ($stmt->execute()) {
-                        $mensaje = "Opción actualizada exitosamente";
+                        $mensaje = "Opción actualizada exitosamente con configuración de compatibilidad";
                     }
                 }
                 break;
@@ -905,6 +930,49 @@ if (isset($_GET['error'])) {
             margin-bottom: var(--spacing-md);
             opacity: 0.3;
         }
+
+        /* NUEVOS ESTILOS: Checkboxes de compatibilidad */
+        .compatibility-option {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--bg-card);
+        }
+
+        .compatibility-option:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-hover);
+        }
+
+        .compatibility-option input[type="checkbox"] {
+            margin-right: var(--spacing-sm);
+            transform: scale(1.2);
+        }
+
+        .compatibility-option input[type="checkbox"]:checked + .compatibility-label {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .compatibility-option:has(input:checked) {
+            border-color: var(--accent-primary);
+            background: rgba(var(--accent-primary-rgb), 0.1);
+        }
+
+        .compatibility-label {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            transition: color 0.2s ease;
+        }
+
+        .compatibility-icon {
+            font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
@@ -1405,7 +1473,90 @@ if (isset($_GET['error'])) {
                     </div>
                 </div>
                 
-                <div class="form-group">
+                <!-- NUEVA SECCIÓN: Compatibilidad con tipos de ascensores -->
+                <div class="form-group" id="compatibilidad-section" style="display: none;">
+                    <label class="form-label">Compatibilidad con tipos de ascensores</label>
+                    <p class="form-help" style="margin-bottom: var(--spacing-md); color: var(--text-secondary);">
+                        Selecciona con qué tipos de ascensores es compatible este adicional:
+                    </p>
+                    
+                    <div class="compatibility-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-sm); margin-top: var(--spacing-md);">
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_electromecanicos" id="edit_compatible_electromecanicos" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">⚙️</span>
+                                Equipos Electromecanicos
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_gearless" id="edit_compatible_gearless" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">🔧</span>
+                                Opción Gearless
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_hidraulicos" id="edit_compatible_hidraulicos" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">💧</span>
+                                Equipos Hidraulicos
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_domiciliarios" id="edit_compatible_domiciliarios" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">🏠</span>
+                                Equipos Domiciliarios
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_montavehiculos" id="edit_compatible_montavehiculos" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">🚗</span>
+                                Montavehiculos y Giracoches
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_montacargas" id="edit_compatible_montacargas" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">📦</span>
+                                Montacargas
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_salvaescaleras" id="edit_compatible_salvaescaleras" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">🛤️</span>
+                                Salvaescaleras
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_montaplatos" id="edit_compatible_montaplatos" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">🍽️</span>
+                                Montaplatos
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_escaleras" id="edit_compatible_escaleras" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">🏢</span>
+                                Escaleras Mecánicas
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Campo descuento para categorías no-adicionales -->
+                <div class="form-group" id="descuento-section">
                     <label class="form-label">Descuento (%)</label>
                     <input type="number" name="descuento" id="edit_descuento" class="form-control" min="0" max="100" value="0">
                 </div>
@@ -1618,6 +1769,12 @@ if (isset($_GET['error'])) {
                         
                         document.getElementById('edit_descuento').value = opcion.descuento || 0;
                         
+                        // NUEVA FUNCIONALIDAD: Cargar datos de compatibilidad
+                        cargarDatosCompatibilidad(opcion);
+                        
+                        // Mostrar/ocultar secciones según categoría
+                        toggleSectionsForCategory(opcion.categoria_id);
+                        
                         // Mostrar modal
                         document.getElementById('modalEditar').classList.add('active');
                     } else {
@@ -1628,6 +1785,36 @@ if (isset($_GET['error'])) {
                     console.error('Error:', error);
                     alert('Error al cargar los datos de la opción');
                 });
+        }
+
+        // NUEVA FUNCIÓN: Cargar datos de compatibilidad en el modal
+        function cargarDatosCompatibilidad(opcion) {
+            const tiposCompatibilidad = [
+                'electromecanicos', 'gearless', 'hidraulicos', 'domiciliarios',
+                'montavehiculos', 'montacargas', 'salvaescaleras', 'montaplatos', 'escaleras'
+            ];
+            
+            tiposCompatibilidad.forEach(tipo => {
+                const checkbox = document.getElementById(`edit_compatible_${tipo}`);
+                if (checkbox) {
+                    checkbox.checked = opcion[`compatible_${tipo}`] == 1;
+                }
+            });
+        }
+
+        // NUEVA FUNCIÓN: Mostrar/ocultar secciones según categoría
+        function toggleSectionsForCategory(categoriaId) {
+            const compatibilidadSection = document.getElementById('compatibilidad-section');
+            const descuentoSection = document.getElementById('descuento-section');
+            
+            // Si es categoría adicionales (ID = 2), mostrar compatibilidad
+            if (categoriaId == '2') {
+                compatibilidadSection.style.display = 'block';
+                descuentoSection.style.display = 'none';
+            } else {
+                compatibilidadSection.style.display = 'none';
+                descuentoSection.style.display = 'block';
+            }
         }
 
         function exportarDatos() {
@@ -1660,6 +1847,13 @@ if (isset($_GET['error'])) {
         
         // Preparar formularios antes de enviar
         document.addEventListener('DOMContentLoaded', function() {
+            // NUEVA FUNCIONALIDAD: Event listener para cambio de categoría
+            const editCategoriaSelect = document.getElementById('edit_categoria_id');
+            if (editCategoriaSelect) {
+                editCategoriaSelect.addEventListener('change', function() {
+                    toggleSectionsForCategory(this.value);
+                });
+            }
             // Formulario de agregar
             const formAgregar = document.querySelector('#modalAgregar form');
             if (formAgregar) {
