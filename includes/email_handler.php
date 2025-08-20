@@ -34,6 +34,9 @@ class EmailHandler {
             // Emails de destino (donde llegan las notificaciones) - soporta múltiples emails separados por coma
             $notification_emails = $config['notification_email'];
             
+            // DEBUG: Log de emails configurados
+            error_log("DEBUG: Emails configurados para notificación: " . $notification_emails);
+            
             // Crear el contenido del correo
             $subject = "Nuevo Presupuesto Generado - " . $presupuesto_data['numero_presupuesto'];
             
@@ -157,8 +160,14 @@ class EmailHandler {
      * Enviar correo a múltiples destinatarios
      */
     private function enviarCorreoMultiple($emails_string, $subject, $html_content, $text_content) {
+        // DEBUG: Log del string de emails recibido
+        error_log("DEBUG: String de emails recibido: '$emails_string'");
+        
         // Separar emails por coma y limpiar espacios
         $emails = array_map('trim', explode(',', $emails_string));
+        
+        // DEBUG: Log de emails procesados
+        error_log("DEBUG: Emails procesados: " . print_r($emails, true));
         
         $success_count = 0;
         $total_emails = count($emails);
