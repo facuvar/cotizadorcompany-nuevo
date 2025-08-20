@@ -236,7 +236,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
         ?>
         
         <div class="nav-links">
-            <a href="dashboard.php">← Volver al Dashboard</a>
+            <a href="index.php">← Volver al Dashboard</a>
             <a href="../cotizador.php" target="_blank">Ir al Cotizador</a>
         </div>
     </div>
