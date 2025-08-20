@@ -38,7 +38,7 @@ class EmailHandler {
             error_log("DEBUG: Emails configurados para notificación: " . $notification_emails);
             
             // Crear el contenido del correo
-            $subject = "Nuevo Presupuesto Generado - " . $presupuesto_data['numero_presupuesto'];
+            $subject = "Nuevo Presupuesto Generado - #" . $presupuesto_data['quote_id'];
             
             $html_content = $this->crearHTMLNotificacion($presupuesto_data);
             $text_content = $this->crearTextoNotificacion($presupuesto_data);
@@ -82,7 +82,7 @@ class EmailHandler {
                 
                 <div class='section'>
                     <h3>Información del Presupuesto</h3>
-                    <p><span class='label'>Número:</span><span class='value'>{$data['numero_presupuesto']}</span></p>
+                    <p><span class='label'>Número:</span><span class='value'>#{$data['quote_id']}</span></p>
                     <p><span class='label'>Fecha:</span><span class='value'>$fecha</span></p>
                     <p><span class='label'>Total:</span><span class='value total'>$" . number_format($data['totals']['total'], 2, ',', '.') . "</span></p>
                 </div>
@@ -130,7 +130,7 @@ class EmailHandler {
         $fecha = date('d/m/Y H:i:s');
         
         $texto = "NUEVO PRESUPUESTO GENERADO\n\n";
-        $texto .= "Número: {$data['numero_presupuesto']}\n";
+        $texto .= "Número: #{$data['quote_id']}\n";
         $texto .= "Fecha: $fecha\n";
         $texto .= "Total: $" . number_format($data['totals']['total'], 2, ',', '.') . "\n\n";
         
