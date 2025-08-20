@@ -410,7 +410,7 @@ $stats = [
             </div>
             
             <nav class="sidebar-menu">
-                <a href="index.php" class="sidebar-item">
+                <a href="dashboard.php" class="sidebar-item">
                     <span id="nav-dashboard-icon"></span>
                     <span>Dashboard</span>
                 </a>
