@@ -228,7 +228,7 @@ if (isset($_GET['logout'])) {
             </div>
             
             <nav class="sidebar-menu">
-                <a href="index.php" class="sidebar-item active">
+                <a href="dashboard.php" class="sidebar-item active">
                     <span id="nav-dashboard-icon"></span>
                     <span>Dashboard</span>
                 </a>
@@ -249,7 +249,7 @@ if (isset($_GET['logout'])) {
                         <span id="nav-calculator-icon"></span>
                         <span>Ir al Cotizador</span>
                     </a>
-                    <a href="index.php?logout=1" class="sidebar-item" style="color: var(--accent-danger);">
+                    <a href="dashboard.php?logout=1" class="sidebar-item" style="color: var(--accent-danger);">
                         <span id="nav-logout-icon"></span>
                         <span>Cerrar Sesión</span>
                     </a>
