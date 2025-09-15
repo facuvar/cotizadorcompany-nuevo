@@ -3,14 +3,14 @@ session_start();
 
 // Verificar autenticación
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: index.php');
+    header('Location: ./index.php');
     exit;
 }
 
 // Obtener ID del presupuesto
 $id = $_GET['id'] ?? 0;
 if (!$id) {
-    header('Location: presupuestos.php');
+    header('Location: ./presupuestos.php');
     exit;
 }
 
@@ -113,12 +113,12 @@ try {
             }
         }
     } else {
-        header('Location: presupuestos.php');
+        header('Location: ./presupuestos.php');
         exit;
     }
 } catch (Exception $e) {
     error_log("Error: " . $e->getMessage());
-    header('Location: presupuestos.php');
+    header('Location: ./presupuestos.php');
     exit;
 }
 

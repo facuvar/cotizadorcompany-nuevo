@@ -46,7 +46,7 @@ if (!$dbLoaded) {
 $isLoggedIn = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;
 
 if (!$isLoggedIn) {
-    header('Location: index.php');
+    header('Location: ./index.php');
     exit;
 }
 

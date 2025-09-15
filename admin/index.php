@@ -10,7 +10,7 @@ if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
 // Manejar logout
 if (isset($_GET['logout'])) {
     session_destroy();
-    header('Location: index.php');
+    header('Location: ./index.php');
     exit;
 }
 
@@ -19,7 +19,7 @@ $isLoggedIn = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'
 
 // Si está logueado, redirigir al dashboard
 if ($isLoggedIn) {
-    header('Location: dashboard.php');
+    header('Location: ./dashboard.php');
     exit;
 }
 
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['admin_logged_in'] = true;
             $_SESSION['admin_user'] = $username;
             $_SESSION['login_time'] = time();
-            header('Location: dashboard.php');
+            header('Location: ./dashboard.php');
             exit;
         } else {
             $error = 'Usuario o contraseña incorrectos';

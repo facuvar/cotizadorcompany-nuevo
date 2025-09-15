@@ -48,7 +48,7 @@ foreach ($dbPaths as $dbPath) {
 
 // Verificar si el usuario está logueado
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: index.php');
+    header('Location: ./index.php');
     exit;
 }
 
@@ -57,6 +57,7 @@ $totalPresupuestos = 0;
 $totalProductos = 0;
 $totalOpciones = 0;
 $ultimosPresupuestos = null;
+$date_column = 'created_at'; // Variable global para la columna de fecha
 
 // Obtener estadísticas solo si la DB está conectada
 if ($dbConnected) {
@@ -89,8 +90,44 @@ if ($dbConnected) {
         }
 
         // Obtener últimos presupuestos
-        $query = "SELECT * FROM presupuestos ORDER BY fecha_creacion DESC LIMIT 5";
+        // Verificar qué columna de fecha existe (created_at o fecha_creacion)
+        $columns_result = $conn->query("SHOW COLUMNS FROM presupuestos LIKE '%creat%'");
+        $date_column = 'created_at'; // Por defecto
+        if ($columns_result && $columns_result->num_rows > 0) {
+            while ($column = $columns_result->fetch_assoc()) {
+                if ($column['Field'] === 'fecha_creacion') {
+                    $date_column = 'fecha_creacion';
+                    break;
+                } elseif ($column['Field'] === 'created_at') {
+                    $date_column = 'created_at';
+                    break;
+                }
+            }
+        }
+        
+        $query = "SELECT * FROM presupuestos ORDER BY $date_column DESC LIMIT 5";
         $ultimosPresupuestos = $conn->query($query);
+        
+        // Debug: Log información para diagnosticar
+        if (defined('DEBUG_MODE') && DEBUG_MODE) {
+            error_log("Dashboard - Columna de fecha usada: $date_column");
+            error_log("Dashboard - Número de presupuestos encontrados: " . ($ultimosPresupuestos ? $ultimosPresupuestos->num_rows : 0));
+            error_log("Dashboard - Total presupuestos contados: $totalPresupuestos");
+        }
+        
+        // Fallback: Si no se encontraron presupuestos pero el conteo dice que hay, intentar con la otra columna
+        if ((!$ultimosPresupuestos || $ultimosPresupuestos->num_rows === 0) && $totalPresupuestos > 0) {
+            $alternate_date_column = ($date_column === 'created_at') ? 'fecha_creacion' : 'created_at';
+            $fallback_query = "SELECT * FROM presupuestos ORDER BY $alternate_date_column DESC LIMIT 5";
+            $fallback_result = $conn->query($fallback_query);
+            if ($fallback_result && $fallback_result->num_rows > 0) {
+                $ultimosPresupuestos = $fallback_result;
+                $date_column = $alternate_date_column;
+                if (defined('DEBUG_MODE') && DEBUG_MODE) {
+                    error_log("Dashboard - Usando columna alternativa: $date_column");
+                }
+            }
+        }
         
     } catch (Exception $e) {
         if (defined('IS_RAILWAY') && IS_RAILWAY) {
@@ -103,7 +140,7 @@ if ($dbConnected) {
 if (isset($_GET['logout'])) {
     session_unset();
     session_destroy();
-    header('Location: index.php');
+    header('Location: ./index.php');
     exit;
 }
 ?>
@@ -320,7 +357,7 @@ if (isset($_GET['logout'])) {
                     <div class="quote-item">
                         <div class="quote-info">
                             <div class="quote-client"><?php echo htmlspecialchars($presupuesto['cliente_nombre'] ?? 'Cliente'); ?></div>
-                            <div class="quote-date"><?php echo date('d/m/Y H:i', strtotime($presupuesto['created_at'] ?? $presupuesto['fecha_creacion'] ?? 'now')); ?></div>
+                            <div class="quote-date"><?php echo date('d/m/Y H:i', strtotime($presupuesto[$date_column] ?? 'now')); ?></div>
                         </div>
                         <div class="quote-total">$<?php echo number_format($presupuesto['total'] ?? 0, 2); ?></div>
                     </div>
@@ -329,12 +366,29 @@ if (isset($_GET['logout'])) {
                 <?php else: ?>
                 <div class="stat-card">
                     <div style="text-align: center; color: var(--text-secondary);">
-                        <div style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.3;">📊</div>
-                        <h3>No hay presupuestos aún</h3>
-                        <p>Los presupuestos generados aparecerán aquí</p>
-                        <a href="../cotizador.php" target="_blank" class="btn btn-primary" style="margin-top: var(--spacing-md);">
-                            Crear primer presupuesto
-                        </a>
+                        <?php if ($totalPresupuestos > 0): ?>
+                            <!-- Hay presupuestos pero no se pudieron cargar -->
+                            <div style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.3;">⚠️</div>
+                            <h3>Error al cargar presupuestos</h3>
+                            <p>Hay <?php echo $totalPresupuestos; ?> presupuesto(s) en la base de datos, pero no se pudieron mostrar.</p>
+                            <p style="font-size: 0.9em; color: var(--text-muted);">
+                                Posible problema de estructura de tabla. 
+                                <a href="presupuestos.php" style="color: var(--accent-primary);">Ver todos los presupuestos</a>
+                            </p>
+                        <?php elseif (!$dbConnected): ?>
+                            <!-- Sin conexión a base de datos -->
+                            <div style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.3;">🔌</div>
+                            <h3>Sin conexión a base de datos</h3>
+                            <p>No se puede acceder a la información de presupuestos</p>
+                        <?php else: ?>
+                            <!-- Realmente no hay presupuestos -->
+                            <div style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.3;">📊</div>
+                            <h3>No hay presupuestos aún</h3>
+                            <p>Los presupuestos generados aparecerán aquí</p>
+                            <a href="../cotizador.php" target="_blank" class="btn btn-primary" style="margin-top: var(--spacing-md);">
+                                Crear primer presupuesto
+                            </a>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <?php endif; ?>
