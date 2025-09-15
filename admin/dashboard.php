@@ -90,22 +90,30 @@ if ($dbConnected) {
         }
 
         // Obtener últimos presupuestos
-        // Usar la misma consulta que funciona en presupuestos.php
-        $query = "SELECT * FROM presupuestos ORDER BY created_at DESC LIMIT 5";
-        $ultimosPresupuestos = $conn->query($query);
-        $date_column = 'created_at';
+        // Usar EXACTAMENTE la misma lógica que presupuestos.php
+        $presupuestos_dashboard = [];
+        $query = "SELECT * FROM presupuestos WHERE 1=1";
+        $query .= " ORDER BY created_at DESC LIMIT 5";
+        
+        $result = $conn->query($query);
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $presupuestos_dashboard[] = $row;
+            }
+        }
+        
+        // Crear un objeto simulado de resultado para compatibilidad con el código existente
+        $ultimosPresupuestos = (object) [
+            'num_rows' => count($presupuestos_dashboard),
+            'data' => $presupuestos_dashboard
+        ];
         
         // Debug: Log información para diagnosticar
-        if (defined('DEBUG_MODE') && DEBUG_MODE) {
-            error_log("Dashboard - Consulta: $query");
-            error_log("Dashboard - Número de presupuestos encontrados: " . ($ultimosPresupuestos ? $ultimosPresupuestos->num_rows : 0));
-            error_log("Dashboard - Total presupuestos contados: $totalPresupuestos");
-            
-            if ($ultimosPresupuestos && $ultimosPresupuestos->num_rows > 0) {
-                error_log("Dashboard - ✅ Consulta exitosa");
-            } else {
-                error_log("Dashboard - ❌ Error en consulta: " . ($conn->error ?? 'Sin error específico'));
-            }
+        error_log("Dashboard - Query: $query");
+        error_log("Dashboard - Presupuestos encontrados: " . count($presupuestos_dashboard));
+        error_log("Dashboard - Total en DB: $totalPresupuestos");
+        if ($conn->error) {
+            error_log("Dashboard - Error MySQL: " . $conn->error);
         }
         
     } catch (Exception $e) {
@@ -332,7 +340,7 @@ if (isset($_GET['logout'])) {
                     <div class="recent-quotes-header">
                         <h3 class="recent-quotes-title">Últimos Presupuestos</h3>
                     </div>
-                    <?php while ($presupuesto = $ultimosPresupuestos->fetch_assoc()): ?>
+                    <?php foreach ($ultimosPresupuestos->data as $presupuesto): ?>
                     <div class="quote-item">
                         <div class="quote-info">
                             <div class="quote-client"><?php echo htmlspecialchars($presupuesto['cliente_nombre'] ?? 'Cliente'); ?></div>
@@ -340,7 +348,7 @@ if (isset($_GET['logout'])) {
                         </div>
                         <div class="quote-total">$<?php echo number_format($presupuesto['total'] ?? 0, 2); ?></div>
                     </div>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                 </div>
                 <?php else: ?>
                 <div class="stat-card">
