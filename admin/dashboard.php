@@ -108,13 +108,22 @@ if ($dbConnected) {
             'data' => $presupuestos_dashboard
         ];
         
-        // Debug: Log información para diagnosticar
-        error_log("Dashboard - Query: $query");
-        error_log("Dashboard - Presupuestos encontrados: " . count($presupuestos_dashboard));
-        error_log("Dashboard - Total en DB: $totalPresupuestos");
-        if ($conn->error) {
-            error_log("Dashboard - Error MySQL: " . $conn->error);
+        // Debug: Log información para diagnosticar - MUY AGRESIVO
+        error_log("=== DASHBOARD DEBUG ===");
+        error_log("Query ejecutada: $query");
+        error_log("Presupuestos array count: " . count($presupuestos_dashboard));
+        error_log("Total presupuestos DB: $totalPresupuestos");
+        error_log("Resultado query existe: " . ($result ? "SÍ" : "NO"));
+        error_log("Error MySQL: " . ($conn->error ?: "Ninguno"));
+        error_log("Objeto ultimosPresupuestos num_rows: " . $ultimosPresupuestos->num_rows);
+        
+        // Log los primeros 2 presupuestos para debug
+        if (count($presupuestos_dashboard) > 0) {
+            error_log("Primer presupuesto - ID: " . ($presupuestos_dashboard[0]['id'] ?? 'N/A'));
+            error_log("Primer presupuesto - Cliente: " . ($presupuestos_dashboard[0]['cliente_nombre'] ?? 'N/A'));
+            error_log("Primer presupuesto - Fecha: " . ($presupuestos_dashboard[0]['created_at'] ?? 'N/A'));
         }
+        error_log("=== FIN DASHBOARD DEBUG ===");
         
     } catch (Exception $e) {
         if (defined('IS_RAILWAY') && IS_RAILWAY) {
