@@ -90,42 +90,21 @@ if ($dbConnected) {
         }
 
         // Obtener últimos presupuestos
-        // Verificar qué columna de fecha existe (created_at o fecha_creacion)
-        $columns_result = $conn->query("SHOW COLUMNS FROM presupuestos LIKE '%creat%'");
-        $date_column = 'created_at'; // Por defecto
-        if ($columns_result && $columns_result->num_rows > 0) {
-            while ($column = $columns_result->fetch_assoc()) {
-                if ($column['Field'] === 'fecha_creacion') {
-                    $date_column = 'fecha_creacion';
-                    break;
-                } elseif ($column['Field'] === 'created_at') {
-                    $date_column = 'created_at';
-                    break;
-                }
-            }
-        }
-        
-        $query = "SELECT * FROM presupuestos ORDER BY $date_column DESC LIMIT 5";
+        // Usar la misma consulta que funciona en presupuestos.php
+        $query = "SELECT * FROM presupuestos ORDER BY created_at DESC LIMIT 5";
         $ultimosPresupuestos = $conn->query($query);
+        $date_column = 'created_at';
         
         // Debug: Log información para diagnosticar
         if (defined('DEBUG_MODE') && DEBUG_MODE) {
-            error_log("Dashboard - Columna de fecha usada: $date_column");
+            error_log("Dashboard - Consulta: $query");
             error_log("Dashboard - Número de presupuestos encontrados: " . ($ultimosPresupuestos ? $ultimosPresupuestos->num_rows : 0));
             error_log("Dashboard - Total presupuestos contados: $totalPresupuestos");
-        }
-        
-        // Fallback: Si no se encontraron presupuestos pero el conteo dice que hay, intentar con la otra columna
-        if ((!$ultimosPresupuestos || $ultimosPresupuestos->num_rows === 0) && $totalPresupuestos > 0) {
-            $alternate_date_column = ($date_column === 'created_at') ? 'fecha_creacion' : 'created_at';
-            $fallback_query = "SELECT * FROM presupuestos ORDER BY $alternate_date_column DESC LIMIT 5";
-            $fallback_result = $conn->query($fallback_query);
-            if ($fallback_result && $fallback_result->num_rows > 0) {
-                $ultimosPresupuestos = $fallback_result;
-                $date_column = $alternate_date_column;
-                if (defined('DEBUG_MODE') && DEBUG_MODE) {
-                    error_log("Dashboard - Usando columna alternativa: $date_column");
-                }
+            
+            if ($ultimosPresupuestos && $ultimosPresupuestos->num_rows > 0) {
+                error_log("Dashboard - ✅ Consulta exitosa");
+            } else {
+                error_log("Dashboard - ❌ Error en consulta: " . ($conn->error ?? 'Sin error específico'));
             }
         }
         
@@ -357,7 +336,7 @@ if (isset($_GET['logout'])) {
                     <div class="quote-item">
                         <div class="quote-info">
                             <div class="quote-client"><?php echo htmlspecialchars($presupuesto['cliente_nombre'] ?? 'Cliente'); ?></div>
-                            <div class="quote-date"><?php echo date('d/m/Y H:i', strtotime($presupuesto[$date_column] ?? 'now')); ?></div>
+                            <div class="quote-date"><?php echo date('d/m/Y H:i', strtotime($presupuesto['created_at'] ?? 'now')); ?></div>
                         </div>
                         <div class="quote-total">$<?php echo number_format($presupuesto['total'] ?? 0, 2); ?></div>
                     </div>
