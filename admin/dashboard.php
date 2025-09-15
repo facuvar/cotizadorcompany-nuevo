@@ -145,7 +145,7 @@ if (isset($_GET['logout'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Sistema de Presupuestos</title>
+    <title>Panel de Administración - Sistema de Presupuestos [VERSIÓN HOTFIX 15-SEP-2024]</title>
     <link rel="stylesheet" href="../assets/css/modern-dark-theme.css?v=<?php echo time(); ?>">
     <style>
         .dashboard-layout {
