@@ -3,7 +3,7 @@ session_start();
 
 // Verificar autenticación
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: index.php');
+    header('Location: ./index.php');
     exit;
 }
 
@@ -410,7 +410,7 @@ $stats = [
             </div>
             
             <nav class="sidebar-menu">
-                <a href="index.php" class="sidebar-item">
+                <a href="dashboard.php" class="sidebar-item">
                     <span id="nav-dashboard-icon"></span>
                     <span>Dashboard</span>
                 </a>
@@ -432,7 +432,7 @@ $stats = [
                         <span id="nav-calculator-icon"></span>
                         <span>Ir al Cotizador</span>
                     </a>
-                    <a href="index.php?logout=1" class="sidebar-item" style="color: var(--accent-danger);">
+                    <a href="dashboard.php?logout=1" class="sidebar-item" style="color: var(--accent-danger);">
                         <span id="nav-logout-icon"></span>
                         <span>Cerrar Sesión</span>
                     </a>
@@ -451,10 +451,6 @@ $stats = [
                     </div>
                     
                     <div class="header-actions" style="display: flex; gap: var(--spacing-md);">
-                        <button class="btn btn-secondary" onclick="exportarPresupuestos()">
-                            <span id="export-icon"></span>
-                            Exportar
-                        </button>
                         <a href="../cotizador.php" class="btn btn-primary" target="_blank">
                             <span id="new-icon"></span>
                             Nuevo Presupuesto
@@ -676,7 +672,6 @@ $stats = [
             document.getElementById('nav-logout-icon').innerHTML = modernUI.getIcon('logout');
             
             // Header
-            document.getElementById('export-icon').innerHTML = modernUI.getIcon('download');
             document.getElementById('new-icon').innerHTML = modernUI.getIcon('add');
             
             // Stats

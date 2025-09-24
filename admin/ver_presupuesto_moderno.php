@@ -3,14 +3,14 @@ session_start();
 
 // Verificar autenticación
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: index.php');
+    header('Location: ./index.php');
     exit;
 }
 
 // Obtener ID del presupuesto
 $id = $_GET['id'] ?? 0;
 if (!$id) {
-    header('Location: presupuestos.php');
+    header('Location: ./presupuestos.php');
     exit;
 }
 
@@ -113,12 +113,12 @@ try {
             }
         }
     } else {
-        header('Location: presupuestos.php');
+        header('Location: ./presupuestos.php');
         exit;
     }
 } catch (Exception $e) {
     error_log("Error: " . $e->getMessage());
-    header('Location: presupuestos.php');
+    header('Location: ./presupuestos.php');
     exit;
 }
 
@@ -451,7 +451,7 @@ $total = $subtotal - $descuento;
             </div>
             
             <nav class="sidebar-menu">
-                <a href="index.php" class="sidebar-item">
+                <a href="dashboard.php" class="sidebar-item">
                     <span id="nav-dashboard-icon"></span>
                     <span>Dashboard</span>
                 </a>
@@ -469,7 +469,7 @@ $total = $subtotal - $descuento;
                         <span id="nav-calculator-icon"></span>
                         <span>Ir al Cotizador</span>
                     </a>
-                    <a href="index.php?logout=1" class="sidebar-item" style="color: var(--accent-danger);">
+                    <a href="dashboard.php?logout=1" class="sidebar-item" style="color: var(--accent-danger);">
                         <span id="nav-logout-icon"></span>
                         <span>Cerrar Sesión</span>
                     </a>

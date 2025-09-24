@@ -1,0 +1,12 @@
+FORZAR DEPLOY RAILWAY - 15 SEPTIEMBRE 2024
+Timestamp: 2024-09-15 17:00:00
+
+Este archivo fue creado para forzar a Railway a hacer redeploy
+debido a que los cambios anteriores no se están reflejando.
+
+Cambios esperados:
+1. Dashboard debe mostrar los 10 presupuestos
+2. Archivos de debug deben estar disponibles
+3. Logs detallados en admin/dashboard.php
+
+Si ves este archivo en Railway, significa que el deploy funcionó.

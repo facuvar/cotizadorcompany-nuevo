@@ -3,7 +3,7 @@ session_start();
 
 // Verificar autenticación
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: index.php');
+    header('Location: ./index.php');
     exit;
 }
 
@@ -360,7 +360,7 @@ $historial = [];
             </div>
             
             <nav class="sidebar-menu">
-                <a href="index.php" class="sidebar-item">
+                <a href="dashboard.php" class="sidebar-item">
                     <span id="nav-dashboard-icon"></span>
                     <span>Dashboard</span>
                 </a>
@@ -385,7 +385,7 @@ $historial = [];
                         <span id="nav-calculator-icon"></span>
                         <span>Ir al Cotizador</span>
                     </a>
-                    <a href="index.php?logout=1" class="sidebar-item" style="color: var(--accent-danger);">
+                    <a href="dashboard.php?logout=1" class="sidebar-item" style="color: var(--accent-danger);">
                         <span id="nav-logout-icon"></span>
                         <span>Cerrar Sesión</span>
                     </a>

@@ -163,6 +163,12 @@ class EmailHandler {
             return false;
         }
         
+        // Validar formato de API key de SendGrid (debe empezar con SG.)
+        if (!preg_match('/^SG\./', $this->api_key)) {
+            error_log('Error: Formato de SENDGRID_API_KEY inválido');
+            return false;
+        }
+        
         $url = 'https://api.sendgrid.com/v3/mail/send';
         
         $data = [
