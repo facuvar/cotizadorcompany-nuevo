@@ -1,5 +1,5 @@
 <?php
-// Verificar si es una petición específica
+// Verificar si es una petición específica CANCELADO EL SISTEMA HASTA PAGO
 $requestUri = $_SERVER['REQUEST_URI'] ?? '';
 $pathInfo = parse_url($requestUri, PHP_URL_PATH);
 
