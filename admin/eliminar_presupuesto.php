@@ -3,7 +3,7 @@ session_start();
 
 // Verificar autenticación
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: index.php');
+    header('Location: ./index.php');
     exit;
 }
 
@@ -42,7 +42,7 @@ foreach ($dbPaths as $dbPath) {
 // Verificar que se recibió un ID
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     $_SESSION['error_message'] = "No se especificó un ID de presupuesto válido";
-    header('Location: presupuestos.php');
+    header('Location: ./presupuestos.php');
     exit;
 }
 
@@ -61,7 +61,7 @@ try {
     
     if ($result->num_rows === 0) {
         $_SESSION['error_message'] = "El presupuesto #$presupuesto_id no existe";
-        header('Location: presupuestos.php');
+        header('Location: ./presupuestos.php');
         exit;
     }
     
@@ -88,6 +88,6 @@ try {
 }
 
 // Redirigir de vuelta a la lista de presupuestos
-header('Location: presupuestos.php');
+header('Location: ./presupuestos.php');
 exit;
 ?> 

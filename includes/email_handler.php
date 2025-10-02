@@ -31,17 +31,20 @@ class EmailHandler {
             // Cargar configuración
             $config = include __DIR__ . '/email_config.php';
             
-            // Email de destino (donde llegan las notificaciones)
-            $to_email = $config['notification_email'];
+            // Emails de destino (donde llegan las notificaciones) - soporta múltiples emails separados por coma
+            $notification_emails = $config['notification_email'];
+            
+            // DEBUG: Log de emails configurados
+            error_log("DEBUG: Emails configurados para notificación: " . $notification_emails);
             
             // Crear el contenido del correo
-            $subject = "Nuevo Presupuesto Generado - " . $presupuesto_data['numero_presupuesto'];
+            $subject = "Nuevo Presupuesto Generado - #" . $presupuesto_data['quote_id'];
             
             $html_content = $this->crearHTMLNotificacion($presupuesto_data);
             $text_content = $this->crearTextoNotificacion($presupuesto_data);
             
-            // Enviar el correo
-            return $this->enviarCorreo($to_email, 'Facundo', $subject, $html_content, $text_content);
+            // Enviar el correo a múltiples destinatarios
+            return $this->enviarCorreoMultiple($notification_emails, $subject, $html_content, $text_content);
             
         } catch (Exception $e) {
             error_log('Error enviando correo: ' . $e->getMessage());
@@ -79,7 +82,7 @@ class EmailHandler {
                 
                 <div class='section'>
                     <h3>Información del Presupuesto</h3>
-                    <p><span class='label'>Número:</span><span class='value'>{$data['numero_presupuesto']}</span></p>
+                    <p><span class='label'>Número:</span><span class='value'>#{$data['quote_id']}</span></p>
                     <p><span class='label'>Fecha:</span><span class='value'>$fecha</span></p>
                     <p><span class='label'>Total:</span><span class='value total'>$" . number_format($data['totals']['total'], 2, ',', '.') . "</span></p>
                 </div>
@@ -127,7 +130,7 @@ class EmailHandler {
         $fecha = date('d/m/Y H:i:s');
         
         $texto = "NUEVO PRESUPUESTO GENERADO\n\n";
-        $texto .= "Número: {$data['numero_presupuesto']}\n";
+        $texto .= "Número: #{$data['quote_id']}\n";
         $texto .= "Fecha: $fecha\n";
         $texto .= "Total: $" . number_format($data['totals']['total'], 2, ',', '.') . "\n\n";
         
@@ -154,12 +157,66 @@ class EmailHandler {
     }
     
     /**
+     * Enviar correo a múltiples destinatarios
+     */
+    private function enviarCorreoMultiple($emails_string, $subject, $html_content, $text_content) {
+        // DEBUG: Log del string de emails recibido
+        error_log("DEBUG: String de emails recibido: '$emails_string'");
+        
+        // Separar emails por coma y limpiar espacios
+        $emails = array_map('trim', explode(',', $emails_string));
+        
+        // DEBUG: Log de emails procesados
+        error_log("DEBUG: Emails procesados: " . print_r($emails, true));
+        
+        $success_count = 0;
+        $total_emails = count($emails);
+        
+        foreach ($emails as $email) {
+            if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                // Determinar nombre basado en el email
+                $name = $this->getNombreFromEmail($email);
+                
+                if ($this->enviarCorreo($email, $name, $subject, $html_content, $text_content)) {
+                    $success_count++;
+                    error_log("Correo enviado exitosamente a: $email");
+                } else {
+                    error_log("Error enviando correo a: $email");
+                }
+            } else {
+                error_log("Email inválido: $email");
+            }
+        }
+        
+        error_log("Notificación enviada a $success_count de $total_emails destinatarios");
+        return $success_count > 0; // Retorna true si al menos un email se envió
+    }
+    
+    /**
+     * Obtener nombre basado en el email
+     */
+    private function getNombreFromEmail($email) {
+        $names = [
+            'facundo@maberik.com' => 'Facundo',
+            'victoria.tucci@ascensorescompany.com' => 'Victoria Tucci'
+        ];
+        
+        return $names[$email] ?? 'Equipo Company';
+    }
+    
+    /**
      * Enviar correo usando la API de SendGrid
      */
     private function enviarCorreo($to_email, $to_name, $subject, $html_content, $text_content) {
         // Verificar que la API key esté configurada
         if (empty($this->api_key)) {
             error_log('Error: No se puede enviar correo - SENDGRID_API_KEY no configurada');
+            return false;
+        }
+        
+        // Validar formato de API key de SendGrid (debe empezar con SG.)
+        if (!preg_match('/^SG\./', $this->api_key)) {
+            error_log('Error: Formato de SENDGRID_API_KEY inválido');
             return false;
         }
         

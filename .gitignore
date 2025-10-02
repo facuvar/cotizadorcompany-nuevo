@@ -3,6 +3,9 @@ config.php
 config_local.php
 config_railway.php
 
+# ⚠️ IMPORTANTE: NUNCA subir archivos con credenciales reales
+# Solo subir archivos .example
+
 # Archivos de base de datos y backups SQL
 *.sql
 *.db

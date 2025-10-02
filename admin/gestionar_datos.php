@@ -8,7 +8,7 @@ session_start();
 
 // Verificar autenticación
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: index.php');
+    header('Location: ./index.php');
     exit;
 }
 
@@ -223,11 +223,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $precio_270 = $_POST['precio_270_dias'] ?? 0;
                 $descuento = $_POST['descuento'] ?? 0;
                 
+                // NUEVA FUNCIONALIDAD: Obtener campos de compatibilidad
+                $compatible_electromecanicos = isset($_POST['compatible_electromecanicos']) ? 1 : 0;
+                $compatible_gearless = isset($_POST['compatible_gearless']) ? 1 : 0;
+                $compatible_hidraulicos = isset($_POST['compatible_hidraulicos']) ? 1 : 0;
+                $compatible_domiciliarios = isset($_POST['compatible_domiciliarios']) ? 1 : 0;
+                $compatible_montavehiculos = isset($_POST['compatible_montavehiculos']) ? 1 : 0;
+                $compatible_montacargas = isset($_POST['compatible_montacargas']) ? 1 : 0;
+                $compatible_salvaescaleras = isset($_POST['compatible_salvaescaleras']) ? 1 : 0;
+                $compatible_montaplatos = isset($_POST['compatible_montaplatos']) ? 1 : 0;
+                $compatible_escaleras = isset($_POST['compatible_escaleras']) ? 1 : 0;
+                
                 if ($id && $nombre && $categoria_id) {
-                    $stmt = $conn->prepare("UPDATE opciones SET categoria_id=?, nombre=?, precio_90_dias=?, precio_160_dias=?, precio_270_dias=?, descuento=? WHERE id=?");
-                    $stmt->bind_param("isddddi", $categoria_id, $nombre, $precio_90, $precio_160, $precio_270, $descuento, $id);
+                    $sql = "UPDATE opciones SET 
+                            categoria_id=?, nombre=?, precio_90_dias=?, precio_160_dias=?, precio_270_dias=?, descuento=?,
+                            compatible_electromecanicos=?, compatible_gearless=?, compatible_hidraulicos=?, 
+                            compatible_domiciliarios=?, compatible_montavehiculos=?, compatible_montacargas=?,
+                            compatible_salvaescaleras=?, compatible_montaplatos=?, compatible_escaleras=?
+                            WHERE id=?";
+                    
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("isddddiiiiiiiiii", 
+                        $categoria_id, $nombre, $precio_90, $precio_160, $precio_270, $descuento,
+                        $compatible_electromecanicos, $compatible_gearless, $compatible_hidraulicos,
+                        $compatible_domiciliarios, $compatible_montavehiculos, $compatible_montacargas,
+                        $compatible_salvaescaleras, $compatible_montaplatos, $compatible_escaleras,
+                        $id
+                    );
+                    
                     if ($stmt->execute()) {
-                        $mensaje = "Opción actualizada exitosamente";
+                        $mensaje = "Opción actualizada exitosamente con configuración de compatibilidad";
                     }
                 }
                 break;
@@ -905,6 +930,49 @@ if (isset($_GET['error'])) {
             margin-bottom: var(--spacing-md);
             opacity: 0.3;
         }
+
+        /* NUEVOS ESTILOS: Checkboxes de compatibilidad */
+        .compatibility-option {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--bg-card);
+        }
+
+        .compatibility-option:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-hover);
+        }
+
+        .compatibility-option input[type="checkbox"] {
+            margin-right: var(--spacing-sm);
+            transform: scale(1.2);
+        }
+
+        .compatibility-option input[type="checkbox"]:checked + .compatibility-label {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .compatibility-option:has(input:checked) {
+            border-color: var(--accent-primary);
+            background: rgba(var(--accent-primary-rgb), 0.1);
+        }
+
+        .compatibility-label {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            transition: color 0.2s ease;
+        }
+
+        .compatibility-icon {
+            font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
@@ -919,7 +987,7 @@ if (isset($_GET['error'])) {
             </div>
             
             <nav class="sidebar-menu">
-                <a href="index.php" class="sidebar-item">
+                <a href="dashboard.php" class="sidebar-item">
                     <span id="nav-dashboard-icon"></span>
                     <span>Dashboard</span>
                 </a>
@@ -941,7 +1009,7 @@ if (isset($_GET['error'])) {
                         <span id="nav-calculator-icon"></span>
                         <span>Ir al Cotizador</span>
                     </a>
-                    <a href="index.php?logout=1" class="sidebar-item" style="color: var(--accent-danger);">
+                    <a href="dashboard.php?logout=1" class="sidebar-item" style="color: var(--accent-danger);">
                         <span id="nav-logout-icon"></span>
                         <span>Cerrar Sesión</span>
                     </a>
@@ -960,10 +1028,6 @@ if (isset($_GET['error'])) {
                     </div>
                     
                     <div class="header-actions" style="display: flex; gap: var(--spacing-md);">
-                        <button class="btn btn-secondary" onclick="exportarDatos()">
-                            <span id="export-icon"></span>
-                            Exportar
-                        </button>
                         <button class="btn btn-primary" onclick="mostrarModalAgregar()">
                             <span id="add-icon"></span>
                             Agregar Opción
@@ -1018,7 +1082,7 @@ if (isset($_GET['error'])) {
                         <div class="mini-stat-value">
                             <?php 
                             $activas = array_filter($opciones, function($o) {
-                                return $o['precio_90_dias'] > 0 || $o['precio_160_dias'] > 0 || $o['precio_270_dias'] > 0;
+                                return ($o['precio_90_dias'] ?? 0) > 0 || ($o['precio_160_dias'] ?? 0) > 0 || ($o['precio_270_dias'] ?? 0) > 0;
                             });
                             echo count($activas);
                             ?>
@@ -1101,7 +1165,7 @@ if (isset($_GET['error'])) {
                                 <?php foreach ($opciones as $opcion): ?>
                                 <div class="table-row opcion-row" data-categoria="<?php echo $opcion['categoria_id']; ?>" data-nombre="<?php echo strtolower($opcion['nombre']); ?>">
                                     <div class="table-cell">
-                                        <span class="badge badge-primary">
+                                        <span class="badge badge-primary" style="background-color: #<?php echo substr(md5($opcion['categoria_nombre']), 0, 6); ?>; color: #fff;">
                                             <?php echo htmlspecialchars($opcion['categoria_nombre'] ?? 'Sin categoría'); ?>
                                         </span>
                                     </div>
@@ -1110,28 +1174,30 @@ if (isset($_GET['error'])) {
                                             #<?php echo $posiciones_por_categoria[$opcion['id']] ?? 0; ?>
                                         </span>
                                     </div>
-                                    <div class="table-cell">
+                                    <div class="table-cell cell-name">
                                         <strong><?php echo htmlspecialchars($opcion['nombre']); ?></strong>
                                     </div>
                                     <div class="table-cell price-cell">
-                                        <?php echo $opcion['precio_160_dias'] > 0 ? '$' . number_format($opcion['precio_160_dias'], 2, ',', '.') : '-'; ?>
+                                        <?php echo isset($opcion['precio_160_dias']) && $opcion['precio_160_dias'] > 0 ? '$' . number_format($opcion['precio_160_dias'], 2, ',', '.') : '-'; ?>
                                     </div>
                                     <div class="table-cell price-cell">
-                                        <?php echo $opcion['precio_90_dias'] > 0 ? '$' . number_format($opcion['precio_90_dias'], 2, ',', '.') : '-'; ?>
+                                        <?php echo isset($opcion['precio_90_dias']) && $opcion['precio_90_dias'] > 0 ? '$' . number_format($opcion['precio_90_dias'], 2, ',', '.') : '-'; ?>
                                     </div>
                                     <div class="table-cell price-cell">
-                                        <?php echo $opcion['precio_270_dias'] > 0 ? '$' . number_format($opcion['precio_270_dias'], 2, ',', '.') : '-'; ?>
+                                        <?php echo isset($opcion['precio_270_dias']) && $opcion['precio_270_dias'] > 0 ? '$' . number_format($opcion['precio_270_dias'], 2, ',', '.') : '-'; ?>
                                     </div>
                                     <div class="table-cell">
-                                        <?php if ($opcion['descuento'] > 0): ?>
-                                            <span class="badge badge-success"><?php echo $opcion['descuento']; ?>%</span>
+                                        <?php 
+                                        $descuento = $opcion['descuento_maximo'] ?? ($opcion['descuento'] ?? 0);
+                                        if ($descuento > 0): ?>
+                                            <span class="badge badge-success"><?php echo $descuento; ?>%</span>
                                         <?php else: ?>
                                             -
                                         <?php endif; ?>
                                     </div>
                                     <div class="table-cell">
                                         <div class="order-controls">
-                                            <form method="POST" style="display: inline;">
+                                            <form method="POST" action="gestionar_datos.php" style="display: inline;">
                                                 <input type="hidden" name="action" value="move_opcion_up">
                                                 <input type="hidden" name="id" value="<?php echo $opcion['id']; ?>">
                                                 <button type="submit" class="btn btn-xs btn-secondary" title="Subir">
@@ -1139,13 +1205,13 @@ if (isset($_GET['error'])) {
                                                 </button>
                                             </form>
                                             <input type="number" 
-                                                   class="position-input" 
-                                                   value="<?php echo $opcion['orden'] ?? 0; ?>" 
-                                                   min="1" 
-                                                   title="Posición (Enter para aplicar)"
-                                                   onkeypress="if(event.key==='Enter') moverOpcionAPosicion(<?php echo $opcion['id']; ?>, this.value, <?php echo $opcion['categoria_id']; ?>)"
-                                                   onblur="if(this.value != <?php echo $opcion['orden'] ?? 0; ?>) moverOpcionAPosicion(<?php echo $opcion['id']; ?>, this.value, <?php echo $opcion['categoria_id']; ?>)">
-                                            <form method="POST" style="display: inline;">
+                                                    class="position-input" 
+                                                    value="<?php echo $opcion['orden'] ?? 0; ?>" 
+                                                    min="1" 
+                                                    title="Posición (Enter para aplicar)"
+                                                    onkeypress="if(event.key==='Enter') moverOpcionAPosicion(<?php echo $opcion['id']; ?>, this.value, <?php echo $opcion['categoria_id']; ?>)"
+                                                    onblur="if(this.value != <?php echo $opcion['orden'] ?? 0; ?>) moverOpcionAPosicion(<?php echo $opcion['id']; ?>, this.value, <?php echo $opcion['categoria_id']; ?>)">
+                                            <form method="POST" action="gestionar_datos.php" style="display: inline;">
                                                 <input type="hidden" name="action" value="move_opcion_down">
                                                 <input type="hidden" name="id" value="<?php echo $opcion['id']; ?>">
                                                 <button type="submit" class="btn btn-xs btn-secondary" title="Bajar">
@@ -1407,7 +1473,90 @@ if (isset($_GET['error'])) {
                     </div>
                 </div>
                 
-                <div class="form-group">
+                <!-- NUEVA SECCIÓN: Compatibilidad con tipos de ascensores -->
+                <div class="form-group" id="compatibilidad-section" style="display: none;">
+                    <label class="form-label">Compatibilidad con tipos de ascensores</label>
+                    <p class="form-help" style="margin-bottom: var(--spacing-md); color: var(--text-secondary);">
+                        Selecciona con qué tipos de ascensores es compatible este adicional:
+                    </p>
+                    
+                    <div class="compatibility-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-sm); margin-top: var(--spacing-md);">
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_electromecanicos" id="edit_compatible_electromecanicos" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">⚙️</span>
+                                Equipos Electromecanicos
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_gearless" id="edit_compatible_gearless" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">🔧</span>
+                                Opción Gearless
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_hidraulicos" id="edit_compatible_hidraulicos" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">💧</span>
+                                Equipos Hidraulicos
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_domiciliarios" id="edit_compatible_domiciliarios" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">🏠</span>
+                                Equipos Domiciliarios
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_montavehiculos" id="edit_compatible_montavehiculos" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">🚗</span>
+                                Montavehiculos y Giracoches
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_montacargas" id="edit_compatible_montacargas" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">📦</span>
+                                Montacargas
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_salvaescaleras" id="edit_compatible_salvaescaleras" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">🛤️</span>
+                                Salvaescaleras
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_montaplatos" id="edit_compatible_montaplatos" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">🍽️</span>
+                                Montaplatos
+                            </span>
+                        </label>
+                        
+                        <label class="compatibility-option">
+                            <input type="checkbox" name="compatible_escaleras" id="edit_compatible_escaleras" value="1">
+                            <span class="compatibility-label">
+                                <span class="compatibility-icon">🏢</span>
+                                Escaleras Mecánicas
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Campo descuento para categorías no-adicionales -->
+                <div class="form-group" id="descuento-section">
                     <label class="form-label">Descuento (%)</label>
                     <input type="number" name="descuento" id="edit_descuento" class="form-control" min="0" max="100" value="0">
                 </div>
@@ -1451,7 +1600,6 @@ if (isset($_GET['error'])) {
             document.getElementById('nav-logout-icon').innerHTML = modernUI.getIcon('logout');
             
             // Header
-            document.getElementById('export-icon').innerHTML = modernUI.getIcon('download');
             document.getElementById('add-icon').innerHTML = modernUI.getIcon('add');
             
             // Alerts
@@ -1470,11 +1618,9 @@ if (isset($_GET['error'])) {
             document.getElementById('search-icon').innerHTML = modernUI.getIcon('search');
             
             // Table actions
-            <?php foreach ($opciones as $opcion): ?>
-            document.getElementById('duplicate-icon-<?php echo $opcion['id']; ?>').innerHTML = modernUI.getIcon('duplicate', 'icon-sm');
-            document.getElementById('edit-icon-<?php echo $opcion['id']; ?>').innerHTML = modernUI.getIcon('edit', 'icon-sm');
-            document.getElementById('delete-icon-<?php echo $opcion['id']; ?>').innerHTML = modernUI.getIcon('delete', 'icon-sm');
-            <?php endforeach; ?>
+            document.querySelectorAll('[id^="duplicate-icon-"]').forEach(el => el.innerHTML = modernUI.getIcon('duplicate', 'icon-sm'));
+            document.querySelectorAll('[id^="edit-icon-"]').forEach(el => el.innerHTML = modernUI.getIcon('edit', 'icon-sm'));
+            document.querySelectorAll('[id^="delete-icon-"]').forEach(el => el.innerHTML = modernUI.getIcon('delete', 'icon-sm'));
             
             // Modal
             document.getElementById('close-modal-icon').innerHTML = modernUI.getIcon('close');
@@ -1623,21 +1769,64 @@ if (isset($_GET['error'])) {
                         
                         document.getElementById('edit_descuento').value = opcion.descuento || 0;
                         
+                        // NUEVA FUNCIONALIDAD: Cargar datos de compatibilidad y mostrar secciones
+                        // Usar setTimeout para asegurar que el DOM esté actualizado
+                        setTimeout(() => {
+                            cargarDatosCompatibilidad(opcion);
+                            toggleSectionsForCategory(opcion.categoria_id);
+                        }, 10);
+                        
                         // Mostrar modal
                         document.getElementById('modalEditar').classList.add('active');
                     } else {
-                        modernUI.showToast('Error al cargar los datos de la opción', 'error');
+                        alert('Error al cargar los datos de la opción');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    modernUI.showToast('Error al cargar los datos de la opción', 'error');
+                    alert('Error al cargar los datos de la opción');
                 });
+        }
+
+        // NUEVA FUNCIÓN: Cargar datos de compatibilidad en el modal
+        function cargarDatosCompatibilidad(opcion) {
+            const tiposCompatibilidad = [
+                'electromecanicos', 'gearless', 'hidraulicos', 'domiciliarios',
+                'montavehiculos', 'montacargas', 'salvaescaleras', 'montaplatos', 'escaleras'
+            ];
+            
+            tiposCompatibilidad.forEach(tipo => {
+                const checkbox = document.getElementById(`edit_compatible_${tipo}`);
+                if (checkbox) {
+                    checkbox.checked = opcion[`compatible_${tipo}`] == 1;
+                }
+            });
+        }
+
+        // NUEVA FUNCIÓN: Mostrar/ocultar secciones según categoría
+        function toggleSectionsForCategory(categoriaId) {
+            const compatibilidadSection = document.getElementById('compatibilidad-section');
+            const descuentoSection = document.getElementById('descuento-section');
+            
+            console.log('toggleSectionsForCategory llamada con categoriaId:', categoriaId);
+            console.log('compatibilidadSection encontrado:', compatibilidadSection !== null);
+            console.log('descuentoSection encontrado:', descuentoSection !== null);
+            
+            // Si es categoría adicionales (ID = 2), mostrar compatibilidad
+            if (categoriaId == '2') {
+                console.log('Mostrando sección de compatibilidad para adicionales');
+                if (compatibilidadSection) compatibilidadSection.style.display = 'block';
+                if (descuentoSection) descuentoSection.style.display = 'none';
+            } else {
+                console.log('Mostrando sección de descuento para categoría:', categoriaId);
+                if (compatibilidadSection) compatibilidadSection.style.display = 'none';
+                if (descuentoSection) descuentoSection.style.display = 'block';
+            }
         }
 
         function exportarDatos() {
             // TODO: Implementar exportación
-            modernUI.showToast('Función de exportación en desarrollo', 'info');
+            alert('Función de exportación en desarrollo');
         }
 
         // Formatear precios con puntos y comas
@@ -1665,6 +1854,13 @@ if (isset($_GET['error'])) {
         
         // Preparar formularios antes de enviar
         document.addEventListener('DOMContentLoaded', function() {
+            // NUEVA FUNCIONALIDAD: Event listener para cambio de categoría
+            const editCategoriaSelect = document.getElementById('edit_categoria_id');
+            if (editCategoriaSelect) {
+                editCategoriaSelect.addEventListener('change', function() {
+                    toggleSectionsForCategory(this.value);
+                });
+            }
             // Formulario de agregar
             const formAgregar = document.querySelector('#modalAgregar form');
             if (formAgregar) {

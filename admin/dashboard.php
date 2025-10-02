@@ -48,7 +48,7 @@ foreach ($dbPaths as $dbPath) {
 
 // Verificar si el usuario está logueado
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: index.php');
+    header('Location: ./index.php');
     exit;
 }
 
@@ -57,6 +57,7 @@ $totalPresupuestos = 0;
 $totalProductos = 0;
 $totalOpciones = 0;
 $ultimosPresupuestos = null;
+$date_column = 'created_at'; // Variable global para la columna de fecha
 
 // Obtener estadísticas solo si la DB está conectada
 if ($dbConnected) {
@@ -89,8 +90,40 @@ if ($dbConnected) {
         }
 
         // Obtener últimos presupuestos
-        $query = "SELECT * FROM presupuestos ORDER BY fecha_creacion DESC LIMIT 5";
-        $ultimosPresupuestos = $conn->query($query);
+        // Usar EXACTAMENTE la misma lógica que presupuestos.php
+        $presupuestos_dashboard = [];
+        $query = "SELECT * FROM presupuestos WHERE 1=1";
+        $query .= " ORDER BY created_at DESC LIMIT 5";
+        
+        $result = $conn->query($query);
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $presupuestos_dashboard[] = $row;
+            }
+        }
+        
+        // Crear un objeto simulado de resultado para compatibilidad con el código existente
+        $ultimosPresupuestos = (object) [
+            'num_rows' => count($presupuestos_dashboard),
+            'data' => $presupuestos_dashboard
+        ];
+        
+        // Debug: Log información para diagnosticar - MUY AGRESIVO
+        error_log("=== DASHBOARD DEBUG ===");
+        error_log("Query ejecutada: $query");
+        error_log("Presupuestos array count: " . count($presupuestos_dashboard));
+        error_log("Total presupuestos DB: $totalPresupuestos");
+        error_log("Resultado query existe: " . ($result ? "SÍ" : "NO"));
+        error_log("Error MySQL: " . ($conn->error ?: "Ninguno"));
+        error_log("Objeto ultimosPresupuestos num_rows: " . $ultimosPresupuestos->num_rows);
+        
+        // Log los primeros 2 presupuestos para debug
+        if (count($presupuestos_dashboard) > 0) {
+            error_log("Primer presupuesto - ID: " . ($presupuestos_dashboard[0]['id'] ?? 'N/A'));
+            error_log("Primer presupuesto - Cliente: " . ($presupuestos_dashboard[0]['cliente_nombre'] ?? 'N/A'));
+            error_log("Primer presupuesto - Fecha: " . ($presupuestos_dashboard[0]['created_at'] ?? 'N/A'));
+        }
+        error_log("=== FIN DASHBOARD DEBUG ===");
         
     } catch (Exception $e) {
         if (defined('IS_RAILWAY') && IS_RAILWAY) {
@@ -103,7 +136,7 @@ if ($dbConnected) {
 if (isset($_GET['logout'])) {
     session_unset();
     session_destroy();
-    header('Location: index.php');
+    header('Location: ./index.php');
     exit;
 }
 ?>
@@ -112,7 +145,7 @@ if (isset($_GET['logout'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Sistema de Presupuestos</title>
+    <title>Panel de Administración - Sistema de Presupuestos [VERSIÓN HOTFIX 15-SEP-2024]</title>
     <link rel="stylesheet" href="../assets/css/modern-dark-theme.css?v=<?php echo time(); ?>">
     <style>
         .dashboard-layout {
@@ -228,7 +261,7 @@ if (isset($_GET['logout'])) {
             </div>
             
             <nav class="sidebar-menu">
-                <a href="index.php" class="sidebar-item active">
+                <a href="dashboard.php" class="sidebar-item active">
                     <span id="nav-dashboard-icon"></span>
                     <span>Dashboard</span>
                 </a>
@@ -249,7 +282,7 @@ if (isset($_GET['logout'])) {
                         <span id="nav-calculator-icon"></span>
                         <span>Ir al Cotizador</span>
                     </a>
-                    <a href="index.php?logout=1" class="sidebar-item" style="color: var(--accent-danger);">
+                    <a href="dashboard.php?logout=1" class="sidebar-item" style="color: var(--accent-danger);">
                         <span id="nav-logout-icon"></span>
                         <span>Cerrar Sesión</span>
                     </a>
@@ -316,25 +349,42 @@ if (isset($_GET['logout'])) {
                     <div class="recent-quotes-header">
                         <h3 class="recent-quotes-title">Últimos Presupuestos</h3>
                     </div>
-                    <?php while ($presupuesto = $ultimosPresupuestos->fetch_assoc()): ?>
+                    <?php foreach ($ultimosPresupuestos->data as $presupuesto): ?>
                     <div class="quote-item">
                         <div class="quote-info">
                             <div class="quote-client"><?php echo htmlspecialchars($presupuesto['cliente_nombre'] ?? 'Cliente'); ?></div>
-                            <div class="quote-date"><?php echo date('d/m/Y H:i', strtotime($presupuesto['created_at'] ?? $presupuesto['fecha_creacion'] ?? 'now')); ?></div>
+                            <div class="quote-date"><?php echo date('d/m/Y H:i', strtotime($presupuesto['created_at'] ?? 'now')); ?></div>
                         </div>
                         <div class="quote-total">$<?php echo number_format($presupuesto['total'] ?? 0, 2); ?></div>
                     </div>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                 </div>
                 <?php else: ?>
                 <div class="stat-card">
                     <div style="text-align: center; color: var(--text-secondary);">
-                        <div style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.3;">📊</div>
-                        <h3>No hay presupuestos aún</h3>
-                        <p>Los presupuestos generados aparecerán aquí</p>
-                        <a href="../cotizador.php" target="_blank" class="btn btn-primary" style="margin-top: var(--spacing-md);">
-                            Crear primer presupuesto
-                        </a>
+                        <?php if ($totalPresupuestos > 0): ?>
+                            <!-- Hay presupuestos pero no se pudieron cargar -->
+                            <div style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.3;">⚠️</div>
+                            <h3>Error al cargar presupuestos</h3>
+                            <p>Hay <?php echo $totalPresupuestos; ?> presupuesto(s) en la base de datos, pero no se pudieron mostrar.</p>
+                            <p style="font-size: 0.9em; color: var(--text-muted);">
+                                Posible problema de estructura de tabla. 
+                                <a href="presupuestos.php" style="color: var(--accent-primary);">Ver todos los presupuestos</a>
+                            </p>
+                        <?php elseif (!$dbConnected): ?>
+                            <!-- Sin conexión a base de datos -->
+                            <div style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.3;">🔌</div>
+                            <h3>Sin conexión a base de datos</h3>
+                            <p>No se puede acceder a la información de presupuestos</p>
+                        <?php else: ?>
+                            <!-- Realmente no hay presupuestos -->
+                            <div style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.3;">📊</div>
+                            <h3>No hay presupuestos aún</h3>
+                            <p>Los presupuestos generados aparecerán aquí</p>
+                            <a href="../cotizador.php" target="_blank" class="btn btn-primary" style="margin-top: var(--spacing-md);">
+                                Crear primer presupuesto
+                            </a>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <?php endif; ?>
